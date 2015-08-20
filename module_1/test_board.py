@@ -69,3 +69,9 @@ class TestBoard(TestCase):
                                 self.board.get_neighbours, b.Board.distance_between, b.Board.distance_between)
 
         self.assertIn(found_path, possible_shortest_paths)
+
+    def test_best_first_search_does_not_find_impossible_path(self):
+        found_path = bfs.a_star(self.board_spec[1], (2, 0),
+                                self.board.get_neighbours, b.Board.distance_between, b.Board.distance_between)
+
+        self.assertFalse(found_path)
