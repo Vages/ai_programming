@@ -2,6 +2,7 @@ from unittest import TestCase
 import module_1.Board as b
 import module_1.BestFirstSearch as bfs
 
+
 class TestBoard(TestCase):
     def setUp(self):
         # The test board from the foils
