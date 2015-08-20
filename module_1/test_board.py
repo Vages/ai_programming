@@ -33,7 +33,7 @@ class TestBoard(TestCase):
     def test_distance_between(self):
         self.assertEqual(1, round(self.board.distance_between((1, 1), (1, 2))))
         self.assertEqual(1, round(self.board.distance_between((1, 1), (2, 1))))
-        self.assertEqual(1, round(self.board.distance_between((1, 1), (2, 2))))
+        self.assertEqual(1.414, round(self.board.distance_between((1, 1), (2, 2)), 3))
 
     def test_it_finds_the_correct_neighbours_in_bottom_left_corner(self):
         home_cell = (0, 0)
