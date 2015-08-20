@@ -39,7 +39,7 @@ def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate):
                 tentative_f_score = tentative_g_score + heuristic_cost_estimate(neighbour, goal)
                 f_score[neighbour] = tentative_f_score
 
-                hq.heappush((tentative_f_score, neighbour))
+                hq.heappush(open_set, (tentative_f_score, neighbour))
 
     return False
 
@@ -47,7 +47,9 @@ def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate):
 def reconstruct_path(came_from, current):
     total_path = [current]
     while current in came_from:
-        current = came_from(current)
+        current = came_from[current]
         total_path.append(current)
 
-    return total_path
+    total_path.reverse()
+
+    return tuple(total_path)
