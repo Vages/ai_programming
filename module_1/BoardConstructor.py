@@ -1,5 +1,3 @@
-
-
 def construct_board(board_specification):
     size_params = board_specification[0]
     x_size = size_params[0]

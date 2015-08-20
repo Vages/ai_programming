@@ -1,8 +1,6 @@
 from unittest import TestCase
 import module_1.BoardConstructor as bc
 
-__author__ = 'eirikvageskar'
-
 class TestConstructBoard(TestCase):
     def setUp(self):
 
