@@ -73,8 +73,6 @@ class TestBoard(TestCase):
 
         self.assertIn(found_path, possible_shortest_paths)
 
-    def test_best_first_search_does_not_find_impossible_path(self):
-        found_path = Bfs.a_star(self.board_spec[1], (2, 0),
-                                self.board.get_neighbours, Board.distance_between, Board.distance_between)
-
-        self.assertFalse(found_path)
+    def test_best_first_search_does_not_find_paths_for_unsolvable_problems(self):
+        self.assertRaises(Bfs.UnsolvableError, Bfs.a_star, self.board_spec[1], (2, 0), self.board.get_neighbours,
+                          Board.distance_between, Board.distance_between)

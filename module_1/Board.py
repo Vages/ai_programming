@@ -51,6 +51,9 @@ class Board:
         return sqrt((b_x-a_x)**2+(b_y-a_y)**2)
 
     def get_neighbours(self, a):
+        if self.get_cell(a) == 1:  # There is no way to move out of an occupied cell
+            return set()
+
         a_x, a_y = a
 
         candidates = set()

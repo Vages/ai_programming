@@ -1,5 +1,15 @@
-from collections import defaultdict as defdict
+from collections import defaultdict
 import heapq as hq
+
+
+class UnsolvableError(Exception):
+    def __init__(self, start, goal):
+        self.start = start
+        self.goal = goal
+
+    def __str__(self):
+
+        return 'No possible path from ' + str(self.start) + ' to ' + str(self.goal)
 
 
 def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, mode="best_first"):
@@ -9,18 +19,18 @@ def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, 
     open_set = [(0, start)]  # Heap. Tuples sort lexicographically. First argument is f_score
     came_from = dict()
 
-    g_score = defdict(lambda: float('inf'))
+    g_score = defaultdict(lambda: float('inf'))
     g_score[start] = 0
 
-    f_score = defdict(lambda: float('inf'))
+    f_score = defaultdict(lambda: float('inf'))
     f_score[start] = g_score[start] + heuristic_cost_estimate(start, goal)
 
-    depth_first_priority = 0
+    depth_or_breadth_first_priority = 0
 
     while open_set:
         _, current = hq.heappop(open_set)
 
-        if current in closed_set:
+        if current in closed_set:  # Node already examined. No need to do it again due to heap optimality.
             continue
 
         if current == goal:
@@ -44,14 +54,15 @@ def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, 
                 if mode == 'best_first':
                     priority = tentative_f_score
                 if mode == 'depth_first':
-                    depth_first_priority -= 1
-                    priority = depth_first_priority
+                    depth_or_breadth_first_priority -= 1
+                    priority = depth_or_breadth_first_priority
                 if mode == 'breadth_first':
-                    priority = 0
+                    depth_or_breadth_first_priority += 1
+                    priority = depth_or_breadth_first_priority
 
                 hq.heappush(open_set, (priority, neighbour))
 
-    return False
+    raise UnsolvableError(start, goal)
 
 
 def reconstruct_path(came_from, current):
