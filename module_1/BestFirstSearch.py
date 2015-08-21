@@ -2,7 +2,7 @@ from collections import defaultdict as defdict
 import heapq as hq
 
 
-def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate):
+def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, mode="best_first"):
     # Based on the pseudocode from Wikipedia: https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
 
     closed_set = set()
@@ -14,6 +14,8 @@ def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate):
 
     f_score = defdict(lambda: float('inf'))
     f_score[start] = g_score[start] + heuristic_cost_estimate(start, goal)
+
+    depth_first_priority = 0
 
     while open_set:
         _, current = hq.heappop(open_set)
@@ -39,7 +41,15 @@ def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate):
                 tentative_f_score = tentative_g_score + heuristic_cost_estimate(neighbour, goal)
                 f_score[neighbour] = tentative_f_score
 
-                hq.heappush(open_set, (tentative_f_score, neighbour))
+                if mode == 'best_first':
+                    priority = tentative_f_score
+                if mode == 'depth_first':
+                    depth_first_priority -= 1
+                    priority = depth_first_priority
+                if mode == 'breadth_first':
+                    priority = 0
+
+                hq.heappush(open_set, (priority, neighbour))
 
     return False
 

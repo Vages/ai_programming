@@ -12,9 +12,9 @@ class BoardSearchRunner:
         self.board = Board(board_specification)
         self.solution = None
 
-    def run_search(self):
-        self.solution = Bfs.a_star(self.board_specification[1], self.board_specification[2],
-                                   self.board.get_neighbours, Board.distance_between, Board.distance_between)
+    def run_search(self, mode='best_first'):
+        self.solution = Bfs.a_star(self.board_specification[1], self.board_specification[2], self.board.get_neighbours,
+                                   Board.distance_between, Board.distance_between, mode=mode)
 
     def draw_board_and_solution(self, width, height):
         cell_width = int(min(height/self.board.y_size, width/self.board.x_size))
@@ -81,5 +81,9 @@ if __name__ == '__main__':
     spec_final = tuple(spec_final)
 
     bsr = BoardSearchRunner(spec_final)
-    bsr.run_search()
+    try:
+        mode = sys.argv[2]
+    except IndexError:
+        mode = "best_first"
+    bsr.run_search(mode)
     bsr.draw_board_and_solution(1280, 800)
