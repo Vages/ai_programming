@@ -1,11 +1,13 @@
 from unittest import TestCase
-import module_1.Board as b
-import module_1.BestFirstSearch as bfs
+import module_1.Board
+import module_1.BestFirstSearch as Bfs
+
+Board = module_1.Board.Board
 
 
 class TestBoard(TestCase):
     def setUp(self):
-        # The test board from the foils
+        # The test board from the report
         self.board_spec = (
             (6, 6),
             (1, 0),
@@ -25,7 +27,7 @@ class TestBoard(TestCase):
             [1, 0, 1, 1, 0, 0]
         ]
 
-        self.board = b.Board(self.board_spec)
+        self.board = Board(self.board_spec)
 
     def test_get_board(self):
         self.assertEqual(self.expected_board, self.board.get_board())
@@ -66,13 +68,13 @@ class TestBoard(TestCase):
             ((1, 0), (1, 1), (2, 2), (2, 3), (3, 4), (4, 4), (5, 5))
         }
 
-        found_path = bfs.a_star(self.board_spec[1], self.board_spec[2],
-                                self.board.get_neighbours, b.Board.distance_between, b.Board.distance_between)
+        found_path = Bfs.a_star(self.board_spec[1], self.board_spec[2],
+                                self.board.get_neighbours, Board.distance_between, Board.distance_between)
 
         self.assertIn(found_path, possible_shortest_paths)
 
     def test_best_first_search_does_not_find_impossible_path(self):
-        found_path = bfs.a_star(self.board_spec[1], (2, 0),
-                                self.board.get_neighbours, b.Board.distance_between, b.Board.distance_between)
+        found_path = Bfs.a_star(self.board_spec[1], (2, 0),
+                                self.board.get_neighbours, Board.distance_between, Board.distance_between)
 
         self.assertFalse(found_path)
