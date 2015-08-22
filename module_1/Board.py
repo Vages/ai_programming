@@ -2,7 +2,16 @@ from math import sqrt
 
 
 class Board:
+    """
+    Contains a board that the algorithm can navigate.
+    """
     def __init__(self, board_specification):
+        """
+        Constructs a board from specification.
+
+        :param board_specification: On the tuple form given in the task.
+        :return:
+        """
         size_params = board_specification[0]
         self.x_size = size_params[0]
         self.y_size = size_params[1]
@@ -24,17 +33,6 @@ class Board:
                 for l in range(x_start, x_start+x_size):
                     self.board[k][l] = 1
 
-        self._neighboring_cells = (
-            (-1, -1),
-            (-1, 0),
-            (-1, 1),
-            (0, -1),
-            (0, 1),
-            (1, -1),
-            (1, 0),
-            (1, 1)
-        )
-
     def get_board(self):
         return self.board
 
@@ -45,20 +43,44 @@ class Board:
 
     @staticmethod
     def distance_between(a, b):
+        """
+        Euclidian distance between points a and b.
+
+        :param a: Form (x, y)
+        :param b: Form (x, y)
+        :return:
+        """
         a_x, a_y = a
         b_x, b_y = b
 
         return sqrt((b_x-a_x)**2+(b_y-a_y)**2)
 
     def get_neighbours(self, a):
+        """
+        Returns all squares that one can move to from this square, including diagonal neighbours.
+
+        :param a: Coordinate of square, of form (x, y)
+        :return: Unordered set of possible candidates.
+        """
         if self.get_cell(a) == 1:  # There is no way to move out of an occupied cell
             return set()
 
         a_x, a_y = a
 
+        neighboring_cells = (
+            (-1, -1),
+            (-1, 0),
+            (-1, 1),
+            (0, -1),
+            (0, 1),
+            (1, -1),
+            (1, 0),
+            (1, 1)
+        )
+
         candidates = set()
 
-        for b in self._neighboring_cells:
+        for b in neighboring_cells:
             b_x, b_y = b
 
             c_x, c_y = a_x + b_x, a_y + b_y
