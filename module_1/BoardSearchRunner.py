@@ -73,12 +73,15 @@ class BoardSearchRunner:
         # Some colors
         white = (0xFF, 0xFF, 0xFF)
         grey = (0xD3, 0xD3, 0xD3)
+        black = (0, 0, 0)
+
         red = (0xFF, 0, 0)
         green = (0, 0xFF, 0)
         blue = (0, 0, 0xFF)
-        black = (0, 0, 0)
 
-        # The relative size of a result
+        orange = (0xFF, 0x99, 0)
+        light_blue = (0xAD, 0xD8, 0xE6)
+
         cell_width = int(min(height/self.board.y_size, width/self.board.x_size))
 
         # Draw open spaces and walls
@@ -109,6 +112,12 @@ class BoardSearchRunner:
         for node in result['open_set']:
             self.draw_centered_dot(surface, blue, position_tuple, node, cell_width, round(cell_width/8))
 
+        # Mark start node
+        self.draw_centered_dot(surface, orange, position_tuple, self.board_specification[1], cell_width, round(cell_width/4))
+
+        # Mark goal node
+        self.draw_centered_dot(surface, light_blue, position_tuple, self.board_specification[2], cell_width, round(cell_width/4))
+
         # Draw solution path
         pointlist = []
         for i in range(len(result['solution'])):
@@ -116,6 +125,13 @@ class BoardSearchRunner:
             pointlist.append((x_origin+x*cell_width+int(cell_width/2), y_origin+y*cell_width+int(cell_width/2)))
 
         pygame.draw.lines(surface, red, False, pointlist, int(cell_width/8))
+
+    def solution_cost(self, solution):
+        accum = 0
+        for i in range(1, len(solution)):
+            accum += Board.distance_between(solution[i-1], solution[i])
+
+        return accum
 
     def draw_board_and_solution(self, width, height):
         """
@@ -136,9 +152,10 @@ class BoardSearchRunner:
                                closed_nodes,
                                open_nodes,
                                passed_nodes,
-                               round(self.results[key]['solution_cost'], 2)])
+                               round(self.results[key]['solution_cost'], 2),
+                               round(self.solution_cost(self.results[key]['solution']), 2)])
 
-        print(tabulate(table_data, headers=['Search type', 'Total', 'Closed', 'Open', 'Passed', 'Cost']))
+        print(tabulate(table_data, headers=['Search type', 'Total', 'Closed', 'Open', 'Passed', 'Cost', 'Calculated cost']))
 
         # GUI stuff from here on
         cell_width = round(min(height/self.board.y_size, width/self.board.x_size))
