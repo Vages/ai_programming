@@ -47,8 +47,8 @@ class BoardSearchRunner:
                     pygame.draw.circle(surface, BLACK, (int(x_origin+j*cell_width+cell_width/2), int(y_origin+i*cell_width+cell_width/2)), int(cell_width/16))
 
         pointlist = []
-        for i in range(len(result)):
-            x, y = result[i]
+        for i in range(len(result['solution'])):
+            x, y = result['solution'][i]
             pointlist.append((x_origin+x*cell_width+int(cell_width/2), y_origin+y*cell_width+int(cell_width/2)))
 
         pygame.draw.lines(surface, RED, False, pointlist, int(cell_width/16))

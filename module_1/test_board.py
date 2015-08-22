@@ -69,7 +69,7 @@ class TestBoard(TestCase):
         }
 
         found_path = Bfs.a_star(self.board_spec[1], self.board_spec[2],
-                                self.board.get_neighbours, Board.distance_between, Board.distance_between)
+                                self.board.get_neighbours, Board.distance_between, Board.distance_between)['solution']
 
         self.assertIn(found_path, possible_shortest_paths)
 
