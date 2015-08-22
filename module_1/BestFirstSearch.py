@@ -42,8 +42,10 @@ def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, 
                 open_set_return_elements.add(node)
 
             return {'solution': reconstruct_path(came_from, goal),
+                    'solution_cost': g_score[current],
                     'closed_set': closed_set,
-                    'open_set': open_set_return_elements}
+                    'open_set': open_set_return_elements,
+                    'came_from': came_from}
 
         closed_set.add(current)
 

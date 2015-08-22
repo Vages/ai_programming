@@ -16,17 +16,18 @@ class BoardSearchRunner:
     def run_search(self):
         for mode in self.search_modes:
             self.results[mode] = Bfs.a_star(self.board_specification[1],
-                                              self.board_specification[2],
-                                              self.board.get_neighbours,
-                                              Board.distance_between,
-                                              Board.distance_between,
-                                              mode=mode)
+                                            self.board_specification[2],
+                                            self.board.get_neighbours,
+                                            Board.distance_between,
+                                            Board.distance_between,
+                                            mode=mode)
 
     def draw_board_on_surface(self, surface, position_tuple, size_tuple, result):
         x_origin, y_origin = position_tuple
         width, height = size_tuple
 
         white = (0xFF, 0xFF, 0xFF)
+        grey = (0xD3, 0xD3, 0xD3)
         red = (0xFF, 0, 0)
         green = (0, 0xFF, 0)
         blue = (0, 0, 0xFF)
@@ -42,6 +43,14 @@ class BoardSearchRunner:
                 else:
                     color = white
                 pygame.draw.rect(surface, color, [x_origin+j*cell_width, y_origin+i*cell_width, cell_width, cell_width])
+
+        for child in result['came_from']:
+            parent = result['came_from'][child]
+            p_x, p_y = parent
+            c_x, c_y = child
+            p_x, p_y = x_origin+p_x*cell_width+int(cell_width/2), y_origin+p_y*cell_width+int(cell_width/2)
+            c_x, c_y = x_origin+c_x*cell_width+int(cell_width/2), y_origin+c_y*cell_width+int(cell_width/2)
+            pygame.draw.line(surface, grey, (p_x, p_y), (c_x, c_y), int(cell_width/16))
 
         # Draw dots in open spaces
         for i in range(self.board.y_size):
@@ -62,7 +71,7 @@ class BoardSearchRunner:
             x, y = result['solution'][i]
             pointlist.append((x_origin+x*cell_width+int(cell_width/2), y_origin+y*cell_width+int(cell_width/2)))
 
-        pygame.draw.lines(surface, red, False, pointlist, int(cell_width/16))
+        pygame.draw.lines(surface, red, False, pointlist, int(cell_width/8))
 
     def draw_board_and_solution(self, width, height):
         cell_width = int(min(height/self.board.y_size, width/self.board.x_size))
@@ -83,6 +92,8 @@ class BoardSearchRunner:
         self.draw_board_on_surface(screen, (0, 0), size_of_one_board, self.results["best_first"])
         self.draw_board_on_surface(screen, (width/2, 0), size_of_one_board, self.results["depth_first"])
         self.draw_board_on_surface(screen, (0, height/2), size_of_one_board, self.results["breadth_first"])
+        for key in self.results:
+            print(key, self.results[key]['solution_cost'])
         pygame.draw.line(screen, (0, 0, 0), (0, height/2), (width, height/2), 2)
         pygame.draw.line(screen, (0, 0, 0), (width/2, 0), (width/2, height), 2)
         pygame.display.flip()
