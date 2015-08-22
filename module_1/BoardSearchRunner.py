@@ -25,9 +25,12 @@ class BoardSearchRunner:
     def draw_board_on_surface(self, surface, position_tuple, size_tuple, result):
         x_origin, y_origin = position_tuple
         width, height = size_tuple
-        WHITE = (0xFF, 0xFF, 0xFF)
-        RED = (0xFF, 0, 0)
-        BLACK = (0, 0, 0)
+
+        white = (0xFF, 0xFF, 0xFF)
+        red = (0xFF, 0, 0)
+        green = (0, 0xFF, 0)
+        blue = (0, 0, 0xFF)
+        black = (0, 0, 0)
 
         cell_width = int(min(height/self.board.y_size, width/self.board.x_size))
 
@@ -35,23 +38,31 @@ class BoardSearchRunner:
         for i in range(self.board.y_size):
             for j in range(self.board.x_size):
                 if self.board.get_cell((j, i)) == 1:
-                    color = RED
+                    color = red
                 else:
-                    color = WHITE
+                    color = white
                 pygame.draw.rect(surface, color, [x_origin+j*cell_width, y_origin+i*cell_width, cell_width, cell_width])
 
         # Draw dots in open spaces
         for i in range(self.board.y_size):
             for j in range(self.board.x_size):
                 if self.board.get_cell((j, i)) == 0:
-                    pygame.draw.circle(surface, BLACK, (int(x_origin+j*cell_width+cell_width/2), int(y_origin+i*cell_width+cell_width/2)), int(cell_width/16))
+                    pygame.draw.circle(surface, black, (int(x_origin+j*cell_width+cell_width/2), int(y_origin+i*cell_width+cell_width/2)), int(round(cell_width/16)))
+
+        for node in result['closed_set']:
+            x, y = node
+            pygame.draw.circle(surface, green, (int(x_origin+x*cell_width+cell_width/2), int(y_origin+y*cell_width+cell_width/2)), int(cell_width/8))
+
+        for node in result['open_set']:
+            x, y = node
+            pygame.draw.circle(surface, blue, (int(x_origin+x*cell_width+cell_width/2), int(y_origin+y*cell_width+cell_width/2)), int(cell_width/8))
 
         pointlist = []
         for i in range(len(result['solution'])):
             x, y = result['solution'][i]
             pointlist.append((x_origin+x*cell_width+int(cell_width/2), y_origin+y*cell_width+int(cell_width/2)))
 
-        pygame.draw.lines(surface, RED, False, pointlist, int(cell_width/16))
+        pygame.draw.lines(surface, red, False, pointlist, int(cell_width/16))
 
     def draw_board_and_solution(self, width, height):
         cell_width = int(min(height/self.board.y_size, width/self.board.x_size))
@@ -69,18 +80,17 @@ class BoardSearchRunner:
 
         # -------- Main Program Loop -----------
 
+        self.draw_board_on_surface(screen, (0, 0), size_of_one_board, self.results["best_first"])
+        self.draw_board_on_surface(screen, (width/2, 0), size_of_one_board, self.results["depth_first"])
+        self.draw_board_on_surface(screen, (0, height/2), size_of_one_board, self.results["breadth_first"])
+        pygame.draw.line(screen, (0, 0, 0), (0, height/2), (width, height/2), 2)
+        pygame.draw.line(screen, (0, 0, 0), (width/2, 0), (width/2, height), 2)
+        pygame.display.flip()
         while not done:
             # --- Main event loop
             for event in pygame.event.get():  # User did something
                 if event.type == pygame.QUIT:  # If user clicked close
                     done = True  # Flag that we are done so we exit this loop
-
-            self.draw_board_on_surface(screen, (0, 0), size_of_one_board, self.results["best_first"])
-            self.draw_board_on_surface(screen, (width/2, 0), size_of_one_board, self.results["depth_first"])
-            self.draw_board_on_surface(screen, (0, height/2), size_of_one_board, self.results["breadth_first"])
-            pygame.draw.line(screen, (0, 0, 0), (0, height/2), (width, height/2), 2)
-            pygame.draw.line(screen, (0, 0, 0), (width/2, 0), (width/2, height), 2)
-            pygame.display.flip()
 
             clock.tick(10)
 
@@ -102,4 +112,4 @@ if __name__ == '__main__':
 
     bsr = BoardSearchRunner(spec_final, ['best_first', 'depth_first', 'breadth_first'])
     bsr.run_search()
-    bsr.draw_board_and_solution(1280, 800)
+    bsr.draw_board_and_solution(1280, 1024)

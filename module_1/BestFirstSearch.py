@@ -34,7 +34,16 @@ def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, 
             continue
 
         if current == goal:
-            return {'solution': reconstruct_path(came_from, goal)}
+            open_set_return_elements = set()
+            for element in open_set:
+                _, node = element
+                if node in closed_set:
+                    continue
+                open_set_return_elements.add(node)
+
+            return {'solution': reconstruct_path(came_from, goal),
+                    'closed_set': closed_set,
+                    'open_set': open_set_return_elements}
 
         closed_set.add(current)
 
