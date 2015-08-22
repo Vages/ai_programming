@@ -3,6 +3,9 @@ import sys
 import BestFirstSearch as Bfs
 import Board as B
 import pygame
+
+from tabulate import tabulate
+
 Board = B.Board
 
 
@@ -92,8 +95,21 @@ class BoardSearchRunner:
         self.draw_board_on_surface(screen, (0, 0), size_of_one_board, self.results["best_first"])
         self.draw_board_on_surface(screen, (width/2, 0), size_of_one_board, self.results["depth_first"])
         self.draw_board_on_surface(screen, (0, height/2), size_of_one_board, self.results["breadth_first"])
+
+        table_data = []
+
         for key in self.results:
-            print(key, self.results[key]['solution_cost'])
+            closed_nodes = len(self.results[key]['closed_set'])
+            open_nodes = len(self.results[key]['open_set'])
+            passed_nodes = self.results[key]['nodes_passed_over']
+            total_nodes = passed_nodes+closed_nodes+open_nodes
+            table_data.append([key,
+                               total_nodes,
+                               closed_nodes,
+                               open_nodes,
+                               passed_nodes,
+                               round(self.results[key]['solution_cost'], 2)])
+        print(tabulate(table_data, headers=['Search type', 'Total', 'Closed', 'Open', 'Passed', 'Cost']))
         pygame.draw.line(screen, (0, 0, 0), (0, height/2), (width, height/2), 2)
         pygame.draw.line(screen, (0, 0, 0), (width/2, 0), (width/2, height), 2)
         pygame.display.flip()

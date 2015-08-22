@@ -26,11 +26,13 @@ def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, 
     f_score[start] = g_score[start] + heuristic_cost_estimate(start, goal)
 
     depth_or_breadth_first_priority = 0
+    nodes_passed_over = 0
 
     while open_set:
         _, current = hq.heappop(open_set)
 
         if current in closed_set:  # Node already examined. No need to do it again due to heap optimality.
+            nodes_passed_over += 1
             continue
 
         if current == goal:
@@ -45,7 +47,8 @@ def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, 
                     'solution_cost': g_score[current],
                     'closed_set': closed_set,
                     'open_set': open_set_return_elements,
-                    'came_from': came_from}
+                    'came_from': came_from,
+                    'nodes_passed_over': nodes_passed_over}
 
         closed_set.add(current)
 
