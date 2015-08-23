@@ -14,7 +14,8 @@ class UnsolvableError(Exception):
         return 'No possible path from ' + str(self.start) + ' to ' + str(self.goal)
 
 
-def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, mode="best_first"):
+def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, mode="best_first",
+           solvability_test=False):
     """
     Implementation of the A* best-first-search algorithm, based on the pseudocode from Wikipedia:
     https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
@@ -25,8 +26,13 @@ def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, 
     :param dist_between: Computes the cost of a move from the current state to one of its successors.
     :param heuristic_cost_estimate: Estimates cost of moving from a state to the goal state.
     :param mode: Controls search behaviour. Can also be set to depth_first or breadth_first.
+    :param solvability_test: For some domains, e.g. N-puzzle, we can determine with a simple function what whether one
+    state is reachable from the other.
     :return:
     """
+    if solvability_test:
+        if not solvability_test(start, goal):
+            raise UnsolvableError(start, goal)
 
     closed_set = set()  # Nodes whose successors have been added to open set.
     open_set = [(0, start)]  # Min-heap. First argument is f_score in best-first search
