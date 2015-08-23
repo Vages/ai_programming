@@ -20,8 +20,19 @@ class TestNPuzzle(TestCase):
                                     (8, 0, 4),
                                     (7, 6, 5))
 
+        self.unsolvable_start_state = ((1, 2, 3, 4),
+                                      (5, 6, 7, 8),
+                                      (9, 10, 11, 12),
+                                      (13, 14, 15, 0))
+
+        self.unsolvable_goal_state = ((1, 2, 3, 4),
+                                      (5, 6, 7, 8),
+                                      (9, 10, 11, 12),
+                                      (13, 15, 14, 0))
+
         self.my_simple_puzzle = NPuzzle(self.simple_goal_state)
         self.my_advanced_puzzle = NPuzzle(self.advanced_goal_state)
+        self.my_unsolvable_puzzle = NPuzzle(self.unsolvable_goal_state)
 
     def test_manhattan_distance(self):
         simple_manhattan_distance = self.my_simple_puzzle.manhattan_distance(self.simple_start_state,
@@ -93,3 +104,16 @@ class TestNPuzzle(TestCase):
     def test_find_position(self):
         found_position = NPuzzle.find_position(self.advanced_goal_state, 6)
         self.assertEqual((1, 2), found_position)
+
+    def test_finds_two_linear_conflicts(self):
+        linear_conflict_for_advanced_state = ((2, 1, 3),
+                                              (8, 0, 5),
+                                              (7, 6, 4))
+
+        self.assertEqual(4, self.my_advanced_puzzle.linear_conflicts(linear_conflict_for_advanced_state))
+
+    def test_finds_unsolvable_board_is_unsolvable(self):
+        self.assertFalse(self.my_unsolvable_puzzle.solvable_from_state(self.unsolvable_start_state))
+
+    def test_finds_solvable_board_is_solvable(self):
+        self.assertTrue(self.my_advanced_puzzle.solvable_from_state(self.advanced_start_state))
