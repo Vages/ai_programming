@@ -14,7 +14,7 @@ class UnsolvableError(Exception):
         return 'No possible path from ' + str(self.start) + ' to ' + str(self.goal)
 
 
-def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, mode="best_first",
+def a_star(start, goal, neighbour_nodes, move_cost, heuristic_cost_estimate, mode="best_first",
            solvability_test=False):
     """
     Implementation of the A* best-first-search algorithm, based on the pseudocode from Wikipedia:
@@ -23,7 +23,7 @@ def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, 
     :param start: Start state
     :param goal: Goal state
     :param neighbour_nodes: Returns all possible next states given a current state.
-    :param dist_between: Computes the cost of a move from the current state to one of its successors.
+    :param move_cost: Computes the cost of a move from the current state to one of its successors.
     :param heuristic_cost_estimate: Estimates cost of moving from a state to the goal state.
     :param mode: Controls search behaviour. Can also be set to depth_first or breadth_first.
     :param solvability_test: For some domains, e.g. N-puzzle, we can determine with a simple function what whether one
@@ -40,9 +40,6 @@ def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, 
 
     g_score = defaultdict(lambda: float('inf'))  # g_score[n] == Cost of moving to node n
     g_score[start] = 0
-
-    f_score = defaultdict(lambda: float('inf'))  # f_score[n] == Expected cost of moving to goal through n
-    f_score[start] = g_score[start] + heuristic_cost_estimate(start, goal)
 
     depth_or_breadth_first_priority = 0  # Controls priority when mode is set to depth- or breadth-first.
     nodes_passed_over = 0
@@ -76,17 +73,14 @@ def a_star(start, goal, neighbour_nodes, dist_between, heuristic_cost_estimate, 
             if neighbour in closed_set:
                 continue
 
-            tentative_g_score = g_score[current] + dist_between(current, neighbour)
+            tentative_g_score = g_score[current] + move_cost(current, neighbour)
 
             if tentative_g_score < g_score[neighbour]:
                 came_from[neighbour] = current
                 g_score[neighbour] = tentative_g_score
 
-                tentative_f_score = tentative_g_score + heuristic_cost_estimate(neighbour, goal)
-                f_score[neighbour] = tentative_f_score
-
                 if mode == 'best_first':
-                    priority = tentative_f_score
+                    priority = tentative_g_score + heuristic_cost_estimate(neighbour, goal)
                 if mode == 'depth_first':
                     depth_or_breadth_first_priority -= 1
                     priority = depth_or_breadth_first_priority
@@ -114,4 +108,4 @@ def reconstruct_path(came_from, current):
 
     total_path.reverse()
 
-    return tuple(total_path)
+    return total_path

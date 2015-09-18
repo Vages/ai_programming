@@ -205,4 +205,4 @@ if __name__ == '__main__':
 
     bsr = BoardSearchRunner(spec_final, ['best_first', 'depth_first', 'breadth_first'])
     bsr.run_search()
-    bsr.draw_board_and_solution(1280, 1024)
+    bsr.draw_board_and_solution(1280, 800)

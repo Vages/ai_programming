@@ -198,9 +198,9 @@ if __name__ == '__main__':
                           (8, 9, 10, 11),
                           (12, 13, 14, 15))
 
-    my_puzzle = NPuzzle(goal_easier_4_by_4)
-    results = a_star(start_easier_4_by_4,
-                     goal_easier_4_by_4,
+    my_puzzle = NPuzzle(goal_3_by_3)
+    results = a_star(start_3_by_3,
+                     goal_3_by_3,
                      my_puzzle.generate_next_states,
                      my_puzzle.move_cost,
                      my_puzzle.manhattan_and_linear,
