@@ -17,6 +17,7 @@ class Board:
         self.y_size = size_params[1]
 
         self.board = []
+        self.inaccessible_tiles = []
 
         for i in range(self.y_size):
             self.board.append([0]*self.x_size)
@@ -32,6 +33,7 @@ class Board:
             for k in range(y_start, y_start+y_size):
                 for l in range(x_start, x_start+x_size):
                     self.board[k][l] = 1
+                    self.inaccessible_tiles.append((l, k))
 
     def get_board(self):
         return self.board
