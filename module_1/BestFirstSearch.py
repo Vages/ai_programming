@@ -15,7 +15,7 @@ class UnsolvableError(Exception):
 
 
 def a_star(start, goal, neighbour_nodes, move_cost, heuristic_cost_estimate, mode="best_first",
-           solvability_test=False):
+           solvability_test=False, gui_function=False):
     """
     Implementation of the A* best-first-search algorithm, based on the pseudocode from Wikipedia:
     https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
@@ -30,6 +30,24 @@ def a_star(start, goal, neighbour_nodes, move_cost, heuristic_cost_estimate, mod
     state is reachable from the other.
     :return:
     """
+
+    def return_current_data():
+        # Remove priority from elements in open set
+        open_set_return_elements = set()
+        for element in open_set:
+            _, node = element
+            if node in closed_set:
+                continue
+            open_set_return_elements.add(node)
+
+        return {'solution': reconstruct_path(came_from, current),
+                'solution_cost': g_score[current],
+                'closed_set': closed_set,
+                'open_set': open_set_return_elements,
+                'came_from': came_from,
+                'nodes_passed_over': nodes_passed_over,
+                'current': current}
+
     if solvability_test:
         if not solvability_test(start, goal):
             raise UnsolvableError(start, goal)
@@ -51,21 +69,9 @@ def a_star(start, goal, neighbour_nodes, move_cost, heuristic_cost_estimate, mod
             nodes_passed_over += 1
             continue
 
+        gui_function(return_current_data())
         if current == goal:
-            # Remove priority from elements in open set
-            open_set_return_elements = set()
-            for element in open_set:
-                _, node = element
-                if node in closed_set:
-                    continue
-                open_set_return_elements.add(node)
-
-            return {'solution': reconstruct_path(came_from, goal),
-                    'solution_cost': g_score[current],
-                    'closed_set': closed_set,
-                    'open_set': open_set_return_elements,
-                    'came_from': came_from,
-                    'nodes_passed_over': nodes_passed_over}
+            return return_current_data()
 
         closed_set.add(current)
 
@@ -93,6 +99,7 @@ def a_star(start, goal, neighbour_nodes, move_cost, heuristic_cost_estimate, mod
     raise UnsolvableError(start, goal)
 
 
+
 def reconstruct_path(came_from, current):
     """
     Returns sequence of states from start to goal state, inclusively.
@@ -109,3 +116,4 @@ def reconstruct_path(came_from, current):
     total_path.reverse()
 
     return total_path
+

@@ -32,7 +32,8 @@ class BoardSearchRunner:
                                             self.board.get_neighbours,
                                             Board.distance_between,
                                             Board.distance_between,
-                                            mode=mode)
+                                            mode=mode,
+                                            gui_function=lambda x: print(x['current']))
 
     @staticmethod
     def draw_centered_dot(surface, color, origin_tuple, cell_offset_tuple, cell_width, size):
