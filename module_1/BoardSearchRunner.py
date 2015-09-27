@@ -19,11 +19,9 @@ class BoardSearchRunner:
         """
         self.board_specification = board_specification
         self.board = Board(board_specification)
-        self.start = self.board_specification[1]
-        self.goal = self.board_specification[2]
         self.search_modes = search_modes
         self.results = dict()
-        self.gfx = Gfx(self.board, 10, self.start, self.goal)
+        self.gfx = Gfx(self.board, 10, self.board.start, self.board.goal)
 
 
     def run_search(self):
@@ -31,8 +29,8 @@ class BoardSearchRunner:
         Runs search and puts result in self.results.
         """
         for mode in self.search_modes:
-            self.results[mode] = Bfs.a_star(self.board_specification[1],
-                                            self.board_specification[2],
+            self.results[mode] = Bfs.a_star(self.board.start,
+                                            self.board.goal,
                                             self.board.get_neighbours,
                                             Board.distance_between,
                                             Board.distance_between,

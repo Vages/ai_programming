@@ -12,9 +12,9 @@ class Board:
         :param board_specification: On the tuple form given in the task.
         :return:
         """
-        size_params = board_specification[0]
-        self.x_size = size_params[0]
-        self.y_size = size_params[1]
+        self.x_size, self.y_size = board_specification[0]
+        self.start = tuple(board_specification[1])
+        self.goal = tuple(board_specification[2])
 
         self.board = []
         self.inaccessible_tiles = []
@@ -34,6 +34,10 @@ class Board:
                 for l in range(x_start, x_start+x_size):
                     self.board[k][l] = 1
                     self.inaccessible_tiles.append((l, k))
+
+
+    def is_goal(self, node):
+        return node == self.goal
 
     def get_board(self):
         return self.board
