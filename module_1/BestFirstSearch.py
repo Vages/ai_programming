@@ -4,27 +4,26 @@ import heapq as hq
 
 class UnsolvableError(Exception):
     """
-    Raised when there is no possible path from the given start state to the given goal state.
+    Raised when there is no possible solution from the given start state.
     """
-    def __init__(self, start, goal):
+    def __init__(self, start):
         self.start = start
-        self.goal = goal
 
     def __str__(self):
-        return 'No possible path from ' + str(self.start) + ' to ' + str(self.goal)
+        return 'No possible solution starting from ' + str(self.start)
 
 
-def a_star(start, goal, neighbour_nodes, move_cost, heuristic_cost_estimate, mode="best_first",
+def a_star(start, goal_test, neighbour_nodes, move_cost, heuristic_cost_estimate, mode="best_first",
            solvability_test=False, gui_function=False):
     """
     Implementation of the A* best-first-search algorithm, based on the pseudocode from Wikipedia:
     https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
 
     :param start: Start state
-    :param goal: Goal state
+    :param goal_test: Function which tests if a state is the goal
     :param neighbour_nodes: Returns all possible next states given a current state.
     :param move_cost: Computes the cost of a move from the current state to one of its successors.
-    :param heuristic_cost_estimate: Estimates cost of moving from a state to the goal state.
+    :param heuristic_cost_estimate: Estimates cost of moving from given state to a goal state.
     :param mode: Controls search behaviour. Can also be set to depth_first or breadth_first.
     :param solvability_test: For some domains, e.g. N-puzzle, we can determine with a simple function what whether one
     state is reachable from the other.
@@ -49,8 +48,8 @@ def a_star(start, goal, neighbour_nodes, move_cost, heuristic_cost_estimate, mod
                 'current': current}
 
     if solvability_test:
-        if not solvability_test(start, goal):
-            raise UnsolvableError(start, goal)
+        if not solvability_test(start):
+            raise UnsolvableError(start)
 
     closed_set = set()  # Nodes whose successors have been added to open set.
     open_set = [(0, start)]  # Min-heap. First argument is f_score in best-first search
@@ -70,7 +69,7 @@ def a_star(start, goal, neighbour_nodes, move_cost, heuristic_cost_estimate, mod
             continue
 
         gui_function(return_current_data())
-        if current == goal:
+        if goal_test(current):
             return return_current_data()
 
         closed_set.add(current)
@@ -86,7 +85,7 @@ def a_star(start, goal, neighbour_nodes, move_cost, heuristic_cost_estimate, mod
                 g_score[neighbour] = tentative_g_score
 
                 if mode == 'best_first':
-                    priority = tentative_g_score + heuristic_cost_estimate(neighbour, goal)
+                    priority = tentative_g_score + heuristic_cost_estimate(neighbour)
                 if mode == 'depth_first':
                     depth_or_breadth_first_priority -= 1
                     priority = depth_or_breadth_first_priority
@@ -96,7 +95,7 @@ def a_star(start, goal, neighbour_nodes, move_cost, heuristic_cost_estimate, mod
 
                 hq.heappush(open_set, (priority, neighbour))
 
-    raise UnsolvableError(start, goal)
+    raise UnsolvableError(start)
 
 
 

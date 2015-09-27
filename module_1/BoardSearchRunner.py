@@ -23,17 +23,16 @@ class BoardSearchRunner:
         self.results = dict()
         self.gfx = Gfx(self.board, 10, self.board.start, self.board.goal)
 
-
     def run_search(self):
         """
         Runs search and puts result in self.results.
         """
         for mode in self.search_modes:
             self.results[mode] = Bfs.a_star(self.board.start,
-                                            self.board.goal,
+                                            self.board.is_goal,
                                             self.board.get_neighbours,
                                             Board.distance_between,
-                                            Board.distance_between,
+                                            self.board.heuristic_cost,
                                             mode=mode,
                                             gui_function=self.gfx.draw)
 

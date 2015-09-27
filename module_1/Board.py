@@ -47,6 +47,9 @@ class Board:
 
         return self.board[y][x]
 
+    def heuristic_cost(self, node):
+        return self.distance_between(node, self.goal)
+
     @staticmethod
     def distance_between(a, b):
         """
