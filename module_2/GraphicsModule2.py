@@ -10,9 +10,9 @@ class Gfx(object):
     safe_zone = 10  # Used as a buffer around screen edges
     size = width, height = 960, 540
 
-    WHITE = 255, 255, 255  # undiscovered tiles
-    BLACK = 0, 0, 0  # closed tiles
-    GREY = 128, 128, 128  # barriers
+    WHITE = 255, 255, 255
+    BLACK = 0, 0, 0
+    GREY = 128, 128, 128
 
     # Colors taken from the Kids Toys color scheme at Adobe Color CC
     # https://color.adobe.com/Kids-Toys-color-theme-6954050/
@@ -24,6 +24,7 @@ class Gfx(object):
     ADOBE_RED = 230, 13, 6
     ADOBE_PINK = 230, 22, 207
 
+    # Put the colors in an array to get a mapping from number to color
     ADOBE_COLORS = [ADOBE_BLUE, ADOBE_GREEN, ADOBE_YELLOW, ADOBE_ORANGE, ADOBE_RED, ADOBE_PINK]
 
     def __init__(self, vertex_coloring_problem, fps, width_height):

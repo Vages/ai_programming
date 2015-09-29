@@ -4,10 +4,14 @@ import itertools
 
 
 class CSProblem:
+    """
+    Class containing a bare bones constraint satisfaction problem.
+    """
+
     def __init__(self):
         self.domains = {}  # A dict of type {var_name: var_domain_as_a_set}
         self.constraints = []  # Contains Constraint instances
-        self.queue = deque()
+        self.queue = deque()  # Queue for revise algorithm. Tuples of type (var_name, constraint).
 
     def _domains_as_tuples(self):
         """
@@ -39,7 +43,7 @@ class CSProblem:
     def revise(self, var_cons_tuple):
         """
         Takes a (var, constraint) tuple. Tries to narrow down the domain of var using constraint.
-        :param var_cons_tuple:
+        :param var_cons_tuple: Tuple of form (variable_name, constraint)
         :return:
         """
         focal_variable, constraint = var_cons_tuple
@@ -53,7 +57,7 @@ class CSProblem:
         # Make all permutations of the variables
         all_permutations = list(itertools.product(*constraint_variable_domains))
 
-        # Make dict which sorts the permutations by the value of the focal value
+        # Make dict which splits the permutations by the value of the focal value
         focal_permutation_dict = {}
         focal_variable_domain = self.domains[focal_variable]
 
@@ -67,19 +71,22 @@ class CSProblem:
 
             focal_permutation_dict[focal_value].append(permutation)
 
+        # Will contain only the values of x’s domain which satisfy the constraint
         values_that_can_satisfy_constraint = set()
 
         for focal_key in focal_permutation_dict:
             if self._can_one_tuple_satisfy_constraint(focal_permutation_dict[focal_key], constraint):
                 values_that_can_satisfy_constraint.add(focal_key)
 
+        # Check if domain has been reduced
         if len(values_that_can_satisfy_constraint) < len(focal_variable_domain):
             self.domains[focal_variable] = values_that_can_satisfy_constraint
             return True  # True signalizes that the domain was changed
 
         return False  # False signalizes that the domain is unchanged
 
-    def _can_one_tuple_satisfy_constraint(self, tuple_list, constraint):
+    @staticmethod
+    def _can_one_tuple_satisfy_constraint(tuple_list, constraint):
         """
         Goes through the tuples in tuple list. If one tuple can satisfy constraint, it returns True. Otherwise False.
         :param tuple_list:
@@ -191,6 +198,11 @@ class CSProblem:
         return successors
 
     def _find_all_variables_with_domains_without_size_1(self):
+        """
+        Helper method in order to avoid selecting domains of size 1 for successor generation.
+        This made the algorithm halt prematurely.
+        :return:
+        """
         candidates = []
         for k in self.domains:
             if len(self.domains[k]) != 1:
@@ -199,4 +211,8 @@ class CSProblem:
         return candidates
 
     def _find_variable_with_smallest_domain(self):
+        """
+        Helper method used in generating successors.
+        :return:
+        """
         return min(self._find_all_variables_with_domains_without_size_1(), key=lambda x: len(self.domains[x]))
