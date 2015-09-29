@@ -29,6 +29,24 @@ class NonogramProblem(CSP):
         self.initialize_queue()
         self.domain_filtering()
 
+    def print_final_solution(self):
+        """
+        Prints final result as pure text. Letter B
+        :return:
+        """
+        for i in range(self.y_size):
+            row_name = 'y'+str(i)
+            row = list(self.domains[row_name])[0]
+            row_string = ''
+            for val in row:
+                if val:
+                    row_string += 'B'
+                else:
+                    row_string += ' '
+
+            print(row_string)
+
+
     @staticmethod
     def _fill_k_bits_in_array_from_position_i(array, k, i):
         array_copy = array[:]
