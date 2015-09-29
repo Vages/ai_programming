@@ -1,11 +1,35 @@
 from collections import deque, defaultdict
+from copy import deepcopy
 import itertools
+
 
 class CSProblem:
     def __init__(self):
-        self.domains = {}  # A dict of type {var_name: var_domain}
+        self.domains = {}  # A dict of type {var_name: var_domain_as_a_set}
         self.constraints = []  # Contains Constraint instances
         self.queue = deque()
+
+    def _domains_as_tuples(self):
+        """
+        Returns a tuple of (key, values) tuples, in order for the object to be hashable.
+        :return:
+        """
+        keys = list(self.domains.keys())
+        keys.sort()
+        key_item_tuples = []
+
+        for key in keys:
+            item_tuple = tuple(list(self.domains[key]).sort())
+            key_item_tuple = tuple(key, item_tuple)
+            key_item_tuples.append(key_item_tuple)
+
+        return tuple(key_item_tuples)
+
+    def __eq__(self, other):
+        return self.domains == other.domains  # This should work as long as dictionary equality works right.
+
+    def __hash__(self):
+        return hash(self._domains_as_tuples())
 
     def revise(self, var_cons_tuple):
         """
@@ -38,26 +62,19 @@ class CSProblem:
 
             focal_permutation_dict[focal_value].append(permutation)
 
-        values_that_can_satisfy_constraint = []
+        values_that_can_satisfy_constraint = set()
 
         for focal_key in focal_permutation_dict:
-            if self.can_one_tuple_satisfy_constraint(focal_permutation_dict[focal_key], constraint):
-                values_that_can_satisfy_constraint.append(focal_key)
+            if self._can_one_tuple_satisfy_constraint(focal_permutation_dict[focal_key], constraint):
+                values_that_can_satisfy_constraint.add(focal_key)
 
         if len(values_that_can_satisfy_constraint) < len(focal_variable_domain):
-            values_that_can_satisfy_constraint.sort()
             self.domains[focal_variable] = values_that_can_satisfy_constraint
+            return True  # True signalizes that the domain was changed
 
-    def initialize_queue(self):
-        """
-        Initializes queue; first formula on page 5 of task.
-        :return:
-        """
-        for constraint in self.constraints:
-            for variable in constraint.variables:
-                self.queue.append((variable, constraint))
+        return False  # False signalizes that the domain is unchanged
 
-    def can_one_tuple_satisfy_constraint(self, tuple_list, constraint):
+    def _can_one_tuple_satisfy_constraint(self, tuple_list, constraint):
         """
         Goes through the tuples in tuple list. If one tuple can satisfy constraint, it returns True. Otherwise False.
         :param tuple_list:
@@ -70,7 +87,36 @@ class CSProblem:
 
         return False
 
-    def domain_changed(self, changed_variable):
+    def initialize_queue(self):
+        """
+        Initializes queue. First formula on page 5 of task.
+        :return:
+        """
+        for constraint in self.constraints:
+            for variable in constraint.variables:
+                self.queue.append((variable, constraint))
+
+    def domain_filtering(self):
+        """
+        Runs the domain filtering loop. Second formula on page 5 of task.
+        :return:
+        """
+        while self.queue:
+            todo_revise_tuple = self.queue.popleft()
+            if self.revise(todo_revise_tuple):
+                focal_variable, constraint = todo_revise_tuple
+                self._domain_changed(focal_variable)
+
+    def rerun(self, focal_variable):
+        """
+        Run when a focal variable has been given an assumed value. Third formula on page 5 of task.
+        :param focal_variable:
+        :return:
+        """
+        self._domain_changed(focal_variable)
+        self.domain_filtering()
+
+    def _domain_changed(self, changed_variable):
         """
         Called when domain of a variable has changed. All constraints in which it participates have to be re-evaluated.
         :param changed_variable: Some variable.
@@ -84,3 +130,60 @@ class CSProblem:
 
                     self.queue.append((var, constraint))
 
+    @staticmethod
+    def domain_sizes_minus_one(problem):
+        """
+        A simple heuristic function: Estimates the distance from the goal is the sum of each variable’s domain size,
+        minus one for each domain (because one option needs to be left in order to have a solution).
+        See top of page 7 in the task for details.
+        :param problem:
+        :return:
+        """
+        domains = problem.domains
+
+        domain_size_sum = 0
+
+        for v in domains:
+            domain_size_sum += len(domains[v])
+
+        domain_size_sum -= len(domains)
+
+        return domain_size_sum
+
+    @staticmethod
+    def all_domains_have_size_one(problem):
+        """
+        Tells if all domains have size one, which means the problem is solved.
+        :param problem:
+        :return:
+        """
+        domains = problem.domains
+
+        for v in domains:
+            if len(domains[v]) != 1:
+                return False
+
+        return True
+
+    def generate_successors_from_assumption(self):
+        """
+        Picks a variable with the smallest number of remaining values left in its domain.
+        It then makes one copy of itself, one for each possible value of the domain.
+        It will return a list containing one possible version of the CSP, each assuming one of possible values of
+        the variable’s domain to be true.
+        :return:
+        """
+        variable_with_smallest_domain = self._find_variable_with_smallest_domain()
+
+        successors = []
+
+        for value in self.domains[variable_with_smallest_domain]:
+            new_successor = deepcopy(self)
+            new_successor.domains[variable_with_smallest_domain] = set([value])
+            new_successor.rerun(variable_with_smallest_domain)
+            successors.append(new_successor)
+
+        return successors
+
+    def _find_variable_with_smallest_domain(self):
+        return min(self.domains, key=lambda x: len(self.domains[x]))
