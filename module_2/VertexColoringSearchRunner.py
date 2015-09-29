@@ -7,6 +7,7 @@ from tabulate import tabulate
 
 VCP = VertexColoringProblem.VertexColoringProblem
 
+
 def print_statistics_to_console(results, start_time, end_time):
         """
         Prints statistics about the three runs to console.
