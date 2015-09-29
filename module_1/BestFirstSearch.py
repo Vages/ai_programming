@@ -13,7 +13,7 @@ class UnsolvableError(Exception):
         return 'No possible solution starting from ' + str(self.start)
 
 
-def a_star(start, goal_test, neighbour_nodes, move_cost, heuristic_cost_estimate, mode="best_first",
+def a_star(start, goal_test, move_cost, heuristic_cost_estimate, mode="best_first",
            solvability_test=False, gui_function=False):
     """
     Implementation of the A* best-first-search algorithm, based on the pseudocode from Wikipedia:
@@ -68,13 +68,14 @@ def a_star(start, goal_test, neighbour_nodes, move_cost, heuristic_cost_estimate
             nodes_passed_over += 1
             continue
 
-        gui_function(return_current_data())
+        if gui_function:
+            gui_function(return_current_data())
         if goal_test(current):
             return return_current_data()
 
         closed_set.add(current)
 
-        for neighbour in neighbour_nodes(current):
+        for neighbour in current.get_successors():
             if neighbour in closed_set:
                 continue
 
@@ -96,7 +97,6 @@ def a_star(start, goal_test, neighbour_nodes, move_cost, heuristic_cost_estimate
                 hq.heappush(open_set, (priority, neighbour))
 
     raise UnsolvableError(start)
-
 
 
 def reconstruct_path(came_from, current):

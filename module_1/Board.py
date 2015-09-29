@@ -1,5 +1,5 @@
 from math import sqrt
-
+from BoardNode import BoardNode
 
 class Board:
     """
@@ -13,8 +13,10 @@ class Board:
         :return:
         """
         self.x_size, self.y_size = board_specification[0]
-        self.start = tuple(board_specification[1])
-        self.goal = tuple(board_specification[2])
+        start_x, start_y = board_specification[1]
+        self.start = BoardNode(self, start_x, start_y)
+        goal_x, goal_y = board_specification[2]
+        self.goal = BoardNode(self, goal_x, goal_y)
 
         self.board = []
         self.inaccessible_tiles = []
@@ -34,7 +36,6 @@ class Board:
                 for l in range(x_start, x_start+x_size):
                     self.board[k][l] = 1
                     self.inaccessible_tiles.append((l, k))
-
 
     def is_goal(self, node):
         return node == self.goal
@@ -59,10 +60,8 @@ class Board:
         :param b: Form (x, y)
         :return:
         """
-        a_x, a_y = a
-        b_x, b_y = b
 
-        return sqrt((b_x-a_x)**2+(b_y-a_y)**2)
+        return sqrt((b.x-a.x)**2+(b.y-a.y)**2)
 
     def get_neighbours(self, a):
         """
@@ -106,4 +105,12 @@ class Board:
 
             unsuited_candidates.add(c)
 
-        return candidates - unsuited_candidates
+        candidates = candidates - unsuited_candidates
+
+        nodes = set()
+
+        for tuple in candidates:
+            x, y = tuple
+            nodes.add(BoardNode(self, x, y))
+
+        return nodes

@@ -30,7 +30,6 @@ class BoardSearchRunner:
         for mode in self.search_modes:
             self.results[mode] = Bfs.a_star(self.board.start,
                                             self.board.is_goal,
-                                            self.board.get_neighbours,
                                             Board.distance_between,
                                             self.board.heuristic_cost,
                                             mode=mode,

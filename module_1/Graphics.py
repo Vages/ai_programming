@@ -53,29 +53,29 @@ class Gfx(object):
 
     def draw_closed_list(self, closed_list):
         for tile in closed_list:
-            x, y = tile
+            x, y = tile.x, tile.y
             self.draw_tile(x, y, self.BLACK)
 
     def draw_open_list(self, open_list):
         for tile in open_list:
-            x, y = tile
+            x, y = tile.x, tile.y
             self.draw_tile(x, y, self.YELLOW)
 
     def draw_start(self):
-        x, y = self.start
+        x, y = self.start.x, self.start.y
         self.draw_tile(x, y, self.BLUE)
 
     def draw_goal(self):
-        x, y = self.goal
+        x, y = self.goal.x, self.goal.y
         self.draw_tile(x, y, self.GREEN)
 
     def draw_current_node(self, node):
-        x, y = node
+        x, y = node.x, node.y
         self.draw_tile(x, y, self.PINK)
 
     def draw_ancestors(self, ancestors):
         for ancestor in ancestors:
-            x, y = ancestor
+            x, y = ancestor.x, ancestor.y
             self.draw_tile(x, y, self.DARK_PINK)
 
     def draw(self, data_dict):
