@@ -19,14 +19,19 @@ class CSProblem:
         key_item_tuples = []
 
         for key in keys:
-            item_tuple = tuple(list(self.domains[key]).sort())
-            key_item_tuple = tuple(key, item_tuple)
+            domain_items = list(self.domains[key])
+            domain_items.sort()
+            item_tuple = tuple(domain_items)
+            key_item_tuple = (key, item_tuple)
             key_item_tuples.append(key_item_tuple)
 
         return tuple(key_item_tuples)
 
     def __eq__(self, other):
         return self.domains == other.domains  # This should work as long as dictionary equality works right.
+
+    def __lt__(self, other):
+        return self.domain_sizes_minus_one(self) < self.domain_sizes_minus_one(other)
 
     def __hash__(self):
         return hash(self._domains_as_tuples())
@@ -165,7 +170,7 @@ class CSProblem:
 
         return True
 
-    def generate_successors_from_assumption(self):
+    def get_successors(self):
         """
         Picks a variable with the smallest number of remaining values left in its domain.
         It then makes one copy of itself, one for each possible value of the domain.
@@ -185,5 +190,13 @@ class CSProblem:
 
         return successors
 
+    def _find_all_variables_with_domains_without_size_1(self):
+        candidates = []
+        for k in self.domains:
+            if len(self.domains[k]) != 1:
+                candidates.append(k)
+
+        return candidates
+
     def _find_variable_with_smallest_domain(self):
-        return min(self.domains, key=lambda x: len(self.domains[x]))
+        return min(self._find_all_variables_with_domains_without_size_1(), key=lambda x: len(self.domains[x]))
