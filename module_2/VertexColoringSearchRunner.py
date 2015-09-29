@@ -23,7 +23,7 @@ def print_statistics_to_console(results, start_time, end_time):
                            closed_nodes,
                            open_nodes,
                            passed_nodes,
-                           len(results['solution']),
+                           len(results['solution'])-1,
                            round(end_time-start_time, 2)])
 
         print(tabulate(table_data, headers=['Total', 'Closed',
