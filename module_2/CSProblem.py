@@ -156,6 +156,9 @@ class CSProblem:
         domain_size_sum = 0
 
         for v in domains:
+            t = len(domains[v])
+            if t == 0:
+                return float('inf')  # Return infinity if any domain has size 0, because it can never yield a solution
             domain_size_sum += len(domains[v])
 
         domain_size_sum -= len(domains)
