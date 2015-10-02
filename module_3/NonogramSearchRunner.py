@@ -3,6 +3,7 @@ import module_1.BestFirstSearch as BFS
 import module_3.NonogramProblem as NonogramProblem
 from time import sleep, time
 from tabulate import tabulate
+from GraphicsModule3 import Gfx
 
 NGP = NonogramProblem.NonogramProblem
 
@@ -43,8 +44,10 @@ if __name__ == '__main__':
 
     a = time()
     ngp = NGP(spec)
+    gfx = Gfx(ngp, 1, (500, 500))
 
-    result = BFS.a_star(ngp, NGP.all_domains_have_size_one, lambda x, y: 0, NGP.domain_sizes_minus_one)
+    result = BFS.a_star(ngp, NGP.all_domains_have_size_one, lambda x, y: 0, NGP.domain_sizes_minus_one,
+                        gui_function=gfx.draw)
     b = time()
     result['current'].print_final_solution()
     print_statistics_to_console(result, a, b)
