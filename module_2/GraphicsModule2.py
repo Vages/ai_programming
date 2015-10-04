@@ -30,6 +30,7 @@ class Gfx(object):
     def __init__(self, vertex_coloring_problem, fps, width_height):
         self.size = self.width, self.height = width_height
         self.vcp = vertex_coloring_problem
+        self.variable_names = sorted(list(self.vcp.domains.keys()))
 
         self.x_min, self.x_max, self.y_min, self.y_max = self.vcp.x_min, self.vcp.x_max, self.vcp.y_min, self.vcp.y_max
         self.x_coordinate_span = self.x_max-self.x_min
@@ -62,7 +63,7 @@ class Gfx(object):
             self._draw_edge(edge)
 
     def draw_nodes(self):
-        for var_name in self.vcp.domains:
+        for var_name in self.variable_names:
             var_domain = self.vcp.domains[var_name]
             var_coordinate = self.vcp.vertices[var_name]
 
