@@ -38,8 +38,5 @@ class Constraint:
         :param args: A tuple containing the arguments
         :return:
         """
-        parameters = str(args[0])
-        for i in range(1, len(args)):
-            parameters += ', ' + str(args[i])
 
-        return eval('self.constraint_formula(' + parameters + ')')
+        return self.constraint_formula(*args)
