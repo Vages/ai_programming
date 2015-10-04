@@ -34,7 +34,7 @@ def a_star(start, goal_test, move_cost, heuristic_cost_estimate, mode="best_firs
         # Remove priority from elements in open set
         open_set_return_elements = set()
         for element in open_set:
-            _, node = element
+            _, _, node = element
             if node in closed_set:
                 continue
             open_set_return_elements.add(node)
@@ -52,7 +52,7 @@ def a_star(start, goal_test, move_cost, heuristic_cost_estimate, mode="best_firs
             raise UnsolvableError(start)
 
     closed_set = set()  # Nodes whose successors have been added to open set.
-    open_set = [(0, start)]  # Min-heap. First argument is f_score in best-first search
+    open_set = [(0, 0, start)]  # Min-heap. First argument is f_score in best-first search
     came_from = dict()  # Predecessors.
 
     g_score = defaultdict(lambda: float('inf'))  # g_score[n] == Cost of moving to node n
@@ -62,11 +62,12 @@ def a_star(start, goal_test, move_cost, heuristic_cost_estimate, mode="best_firs
     nodes_passed_over = 0
 
     while open_set:
-        _, current = hq.heappop(open_set)
+        _, g_score_at_creation_time, current = hq.heappop(open_set)
 
         if current in closed_set:  # Node already examined.
-            nodes_passed_over += 1
-            continue
+            if g_score_at_creation_time >= g_score[current]:
+                nodes_passed_over += 1
+                continue
 
         if gui_function:
             gui_function(return_current_data())
@@ -76,9 +77,6 @@ def a_star(start, goal_test, move_cost, heuristic_cost_estimate, mode="best_firs
         closed_set.add(current)
 
         for neighbour in current.get_successors():
-            if neighbour in closed_set:
-                continue
-
             tentative_g_score = g_score[current] + move_cost(current, neighbour)
 
             if tentative_g_score < g_score[neighbour]:
@@ -94,7 +92,7 @@ def a_star(start, goal_test, move_cost, heuristic_cost_estimate, mode="best_firs
                     depth_or_breadth_first_priority += 1
                     priority = depth_or_breadth_first_priority
 
-                hq.heappush(open_set, (priority, neighbour))
+                hq.heappush(open_set, (priority, tentative_g_score, neighbour))
 
     raise UnsolvableError(start)
 
