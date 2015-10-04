@@ -63,7 +63,7 @@ class Board:
 
         return sqrt((b.x-a.x)**2+(b.y-a.y)**2)
 
-    def get_neighbours(self, a):
+    def get_successors(self, a):
         """
         Returns all squares that one can move to from this square, including diagonal neighbours.
 

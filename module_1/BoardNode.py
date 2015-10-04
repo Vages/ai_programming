@@ -7,7 +7,7 @@ class BoardNode:
         self.y = y
 
     def get_successors(self):
-        return self.board.get_neighbours((self.x, self.y))
+        return self.board.get_successors((self.x, self.y))
 
     def __hash__(self):
         return hash((self.x, self.y))

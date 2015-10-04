@@ -42,21 +42,21 @@ class TestBoard(TestCase):
 
         expected_neighbours = {(1, 0), (1, 1), (0, 1)}
 
-        self.assertEqual(expected_neighbours, self.board.get_neighbours(home_cell))
+        self.assertEqual(expected_neighbours, self.board.get_successors(home_cell))
 
     def test_it_finds_the_correct_neighbours_in_top_right_corner(self):
         home_cell = (5, 5)
 
         expected_neighbours = {(4, 5), (4, 4), (5, 4)}
 
-        self.assertEqual(expected_neighbours, self.board.get_neighbours(home_cell))
+        self.assertEqual(expected_neighbours, self.board.get_successors(home_cell))
 
     def test_it_finds_the_correct_neighbours_close_to_an_obstacle(self):
         home_cell = (2, 2)
 
         expected_neighbours = {(1, 1), (1, 2), (1, 3), (2, 3)}
 
-        self.assertEqual(expected_neighbours, self.board.get_neighbours(home_cell))
+        self.assertEqual(expected_neighbours, self.board.get_successors(home_cell))
 
     def test_get_cell(self):
         self.assertEqual(self.expected_board[0][2], self.board.get_cell((2, 0)))
@@ -69,10 +69,10 @@ class TestBoard(TestCase):
         }
 
         found_path = Bfs.a_star(self.board_spec[1], self.board_spec[2],
-                                self.board.get_neighbours, Board.distance_between, Board.distance_between)['solution']
+                                self.board.get_successors, Board.distance_between, Board.distance_between)['solution']
 
         self.assertIn(found_path, possible_shortest_paths)
 
     def test_best_first_search_does_not_find_paths_for_unsolvable_problems(self):
-        self.assertRaises(Bfs.UnsolvableError, Bfs.a_star, self.board_spec[1], (2, 0), self.board.get_neighbours,
+        self.assertRaises(Bfs.UnsolvableError, Bfs.a_star, self.board_spec[1], (2, 0), self.board.get_successors,
                           Board.distance_between, Board.distance_between)
