@@ -1,5 +1,6 @@
-from collections import deque, defaultdict
+from collections import deque
 from copy import deepcopy
+from module_2.Constraint import Constraint
 import itertools
 
 
@@ -12,6 +13,20 @@ class CSProblem:
         self.domains = {}  # A dict of type {var_name: var_domain_as_a_set}
         self.constraints = []  # Contains Constraint instances
         self.queue = deque()  # Queue for revise algorithm. Tuples of type (var_name, constraint).
+
+    def add_constraint(self, lambda_list, expression, actual_variables):
+        self.constraints.append(Constraint(lambda_list, expression, actual_variables))
+
+    def create_constraint_from_text(self, text):
+        lambda_list, expression, actual_variables = text.split(';')
+        lambda_list = lambda_list.split()
+        actual_variables = actual_variables.split()
+
+        self.add_constraint(lambda_list, expression, actual_variables)
+
+    def initialize_queue_and_filter(self):
+        self.initialize_queue()
+        self.domain_filtering()
 
     def _domains_as_tuples(self):
         """

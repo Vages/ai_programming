@@ -44,6 +44,11 @@ if __name__ == '__main__':
 
     a = time()
     ngp = NGP(spec)
+
+    for i in range(2, len(sys.argv)):
+        ngp.create_constraint_from_text(sys.argv[i])
+    ngp.initialize_queue_and_filter()
+
     gfx = Gfx(ngp, 1, (500, 500))
 
     result = BFS.a_star(ngp, NGP.all_domains_have_size_one, lambda x, y: 0, NGP.domain_sizes_minus_one,

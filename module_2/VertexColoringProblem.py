@@ -1,5 +1,4 @@
 from module_2.CSProblem import CSProblem
-from module_2.Constraint import Constraint
 
 
 class VertexColoringProblem(CSProblem):
@@ -44,9 +43,5 @@ class VertexColoringProblem(CSProblem):
         for i in range(number_of_vertices+1, len(specification)):
             edge_i, edge_j = specification[i]
 
-            self.constraints.append(Constraint(['x', 'y'], 'x != y', (edge_i, edge_j)))
+            self.add_constraint(['x', 'y'], 'x != y', (edge_i, edge_j))
             self.edges.append((edge_i, edge_j))
-
-        # Run the initialization and filtering
-        self.initialize_queue()
-        self.domain_filtering()

@@ -40,6 +40,9 @@ if __name__ == '__main__':
         spec[i] = spec[i].strip().split()
 
     vcp = VCP(spec, k)
+    for i in range(3, len(sys.argv)):
+        vcp.create_constraint_from_text(sys.argv[i])
+    vcp.initialize_queue_and_filter()
 
     gfx = Gfx(vcp, 10, (800, 800))
 

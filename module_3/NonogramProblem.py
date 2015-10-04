@@ -1,5 +1,4 @@
 from module_2.CSProblem import CSProblem
-from module_2.Constraint import Constraint
 
 CSP = CSProblem
 
@@ -31,12 +30,7 @@ class NonogramProblem(CSP):
         for j in range(self.x_size):
             for k in range(self.y_size):
                 line_expression = 'x[' + str(k) + '] == y[' + str(j) + ']'
-                line_constraint = Constraint(['x', 'y'], line_expression, ('x' + str(j), 'y' + str(k)))
-                self.constraints.append(line_constraint)
-
-        # The usual inialization and filtering
-        self.initialize_queue()
-        self.domain_filtering()
+                self.add_constraint(['x', 'y'], line_expression, ('x' + str(j), 'y' + str(k)))
 
     def print_final_solution(self):
         """
