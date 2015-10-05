@@ -3,7 +3,6 @@ from copy import deepcopy
 from module_2.Constraint import Constraint
 import itertools
 
-
 class CSProblem:
     """
     Class containing a bare bones constraint satisfaction problem.
