@@ -21,7 +21,6 @@ def a_star(start, goal_test, move_cost, heuristic_cost_estimate, mode="best_firs
 
     :param start: Start state
     :param goal_test: Function which tests if a state is the goal
-    :param neighbour_nodes: Returns all possible next states given a current state.
     :param move_cost: Computes the cost of a move from the current state to one of its successors.
     :param heuristic_cost_estimate: Estimates cost of moving from given state to a goal state.
     :param mode: Controls search behaviour. Can also be set to depth_first or breadth_first.
