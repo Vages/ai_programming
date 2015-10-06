@@ -19,5 +19,5 @@ class TestCSProblem(TestCase):
 
     def test_it_makes_the_right_number_of_successors(self):
         self.simple_csp.revise(('x', self.simple_csp.constraints[0]))
-        children = self.simple_csp.generate_successors()
+        children = self.simple_csp.get_successors()
         self.assertEqual(3, len(children))

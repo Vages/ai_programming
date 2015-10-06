@@ -13,10 +13,17 @@ class CSProblem:
         self.constraints = []  # Contains Constraint instances
         self.queue = deque()  # Queue for revise algorithm. Tuples of type (var_name, constraint).
 
-    def add_constraint(self, lambda_list, expression, actual_variables):
-        self.constraints.append(Constraint(lambda_list, expression, actual_variables))
+    def add_constraint(self, func_var_names, expression, actual_variables):
+        """
+        Passes the arguments on to the Constraint constructor and appends the generated constraint to this instance’s
+        constraints list.
+        """
+        self.constraints.append(Constraint(func_var_names, expression, actual_variables))
 
     def create_constraint_from_text(self, text):
+        """
+        Takes a text string and converts it to a constraint. Format: "x y; x==y; 0 1".
+        """
         lambda_list, expression, actual_variables = text.split(';')
         lambda_list = lambda_list.split()
         actual_variables = actual_variables.split()
@@ -30,7 +37,6 @@ class CSProblem:
     def _domains_as_tuples(self):
         """
         Returns a tuple of (key, values) tuples, in order for the object to be hashable.
-        :return:
         """
         keys = list(self.domains.keys())
         keys.sort()
@@ -58,7 +64,6 @@ class CSProblem:
         """
         Takes a (var, constraint) tuple. Tries to narrow down the domain of var using constraint.
         :param var_cons_tuple: Tuple of form (variable_name, constraint)
-        :return:
         """
         focal_variable, constraint = var_cons_tuple
 
@@ -103,9 +108,6 @@ class CSProblem:
     def _can_one_tuple_satisfy_constraint(tuple_list, constraint):
         """
         Goes through the tuples in tuple list. If one tuple can satisfy constraint, it returns True. Otherwise False.
-        :param tuple_list:
-        :param constraint:
-        :return:
         """
         for t in tuple_list:
             if constraint.evaluate_constraint(t):
@@ -136,8 +138,6 @@ class CSProblem:
     def rerun(self, focal_variable):
         """
         Run when a focal variable has been given an assumed value. Third formula on page 5 of task.
-        :param focal_variable:
-        :return:
         """
         self._domain_changed(focal_variable)
         self.domain_filtering()
@@ -146,7 +146,6 @@ class CSProblem:
         """
         Called when domain of a variable has changed. All constraints in which it participates have to be re-evaluated.
         :param changed_variable: Some variable.
-        :return:
         """
         for constraint in self.constraints:
             if changed_variable in constraint.variables:
@@ -162,8 +161,6 @@ class CSProblem:
         A simple heuristic function: Estimates the distance from the goal is the sum of each variable’s domain size,
         minus one for each domain (because one option needs to be left in order to have a solution).
         See top of page 7 in the task for details.
-        :param problem:
-        :return:
         """
         domains = problem.domains
 
@@ -183,8 +180,6 @@ class CSProblem:
     def all_domains_have_size_one(problem):
         """
         Tells if all domains have size one, which means the problem is solved.
-        :param problem:
-        :return:
         """
         domains = problem.domains
 
@@ -200,7 +195,6 @@ class CSProblem:
         It then makes one copy of itself, one for each possible value of the domain.
         It will return a list containing one possible version of the CSP, each assuming one of possible values of
         the variable’s domain to be true.
-        :return:
         """
         variable_with_smallest_domain = self._find_variable_with_smallest_domain()
 
@@ -218,7 +212,6 @@ class CSProblem:
         """
         Helper method in order to avoid selecting domains of size 1 for successor generation.
         This made the algorithm halt prematurely.
-        :return:
         """
         candidates = []
         for k in self.domains:
@@ -230,6 +223,5 @@ class CSProblem:
     def _find_variable_with_smallest_domain(self):
         """
         Helper method used in generating successors.
-        :return:
         """
         return min(self._find_all_variables_with_domains_without_size_1(), key=lambda x: len(self.domains[x]))

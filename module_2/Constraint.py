@@ -15,7 +15,6 @@ class Constraint:
         :param expression: Expression that will be evaluated. The same as would appear after the colon
         in a lambda expression.
         :param actual_var_names: Names of actual variables that take part in the constraint satisfaction problem.
-        :return:
         """
 
         if actual_var_names is None:
@@ -36,7 +35,6 @@ class Constraint:
         """
         Evaluates the constraint using the arguments stored in args. Must be a tuple or some other ordered iterable.
         :param args: A tuple containing the arguments
-        :return:
         """
 
         return self.constraint_formula(*args)

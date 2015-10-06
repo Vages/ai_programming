@@ -44,7 +44,7 @@ if __name__ == '__main__':
         vcp.create_constraint_from_text(sys.argv[i])
     vcp.initialize_queue_and_filter()
 
-    gfx = Gfx(vcp, 10, (800, 800))
+    gfx = Gfx(vcp, 100, (800, 800))
 
     a = time()
     result = BFS.a_star(vcp, VCP.all_domains_have_size_one, lambda x, y: 0, VCP.domain_sizes_minus_one,

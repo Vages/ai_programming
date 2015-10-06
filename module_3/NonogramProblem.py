@@ -35,7 +35,6 @@ class NonogramProblem(CSP):
     def print_final_solution(self):
         """
         Prints final result as pure text. Letter B
-        :return:
         """
         for i in range(self.y_size):
             row_name = 'y'+str(i)
@@ -57,7 +56,6 @@ class NonogramProblem(CSP):
         :param array: an array of 0s and 1s.
         :param k: Number of bits to be filled.
         :param i: Position of first cell to be filled.
-        :return:
         """
         array_copy = array[:]
 
@@ -67,7 +65,7 @@ class NonogramProblem(CSP):
         return array_copy
 
     @staticmethod
-    def _place_piece_in_every_possible_way(bit_vector, piece_size, first_legal_position):
+    def _place_segment_in_every_possible_way(bit_vector, piece_size, first_legal_position):
         """
         Returns every possible way to place a piece of 1s into the bit vector, starting at
         or after first_legal_position.
@@ -98,14 +96,13 @@ class NonogramProblem(CSP):
 
         :param line_spec: Line spec of form [x1, x2, ... , xj]
         :param line_length: Integer that specifies line length
-        :return:
         """
         bit_vectors = [([0]*line_length, 0)]
 
         for num in line_spec:
             vectors_with_this_number = []
             for vector, first_pos in bit_vectors:
-                vectors_with_this_number += NonogramProblem._place_piece_in_every_possible_way(vector, num, first_pos)
+                vectors_with_this_number += NonogramProblem._place_segment_in_every_possible_way(vector, num, first_pos)
 
             bit_vectors = vectors_with_this_number
 
