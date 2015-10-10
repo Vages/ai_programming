@@ -95,3 +95,9 @@ class TestPowerBoard(TestCase):
         self.normal_board.move_pieces('l')
         score_after = self.normal_board.score
         self.assertEqual(score_before+4, score_after)
+
+    def test_it_places_a_random_tile_when_told_to(self):
+        a = self.normal_board.get_empty_spaces()
+        self.normal_board.add_random_tile()
+        b = self.normal_board.get_empty_spaces()
+        self.assertEqual(len(b)+1, len(a))

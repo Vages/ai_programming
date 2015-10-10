@@ -1,8 +1,10 @@
 from copy import deepcopy
+import random
 
 
 class PowerBoard:
     ABSENCE = 0
+    FREQUENCY_OF_FOURS = 0.1
 
     def __init__(self, size):
         """
@@ -87,3 +89,28 @@ class PowerBoard:
             n_y = self.y_size - 1 - x
 
         return n_x, n_y
+
+    def get_empty_spaces(self):
+        empties = set()
+
+        for j in range(self.y_size):
+            for i in range(self.x_size):
+                t = (i, j)
+                if self.get_piece(t) == self.ABSENCE:
+                    empties.add(t)
+
+        return empties
+
+    def add_random_tile(self):
+        empties = self.get_empty_spaces()
+        chosen_coordinate = random.sample(empties, 1)[0]
+
+        value = 2
+        if random.random() < self.FREQUENCY_OF_FOURS:
+            value = 4
+
+        self.place_piece_at_coordinate(value, chosen_coordinate)
+
+    def move_and_add_random_tile(self, direction):
+        self.move_pieces(direction)
+        self.add_random_tile()
