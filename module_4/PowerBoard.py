@@ -29,7 +29,7 @@ class PowerBoard:
     def get_board(self):
         return deepcopy(self.board)
 
-    def get_piece(self, coordinate):
+    def get_value_at_coordinate(self, coordinate):
         x, y = coordinate
         return self.board[y][x]
 
@@ -43,9 +43,9 @@ class PowerBoard:
             defendant_counter = 0
             for i in range(1, len(seq)):
                 defendant_coordinate = seq[defendant_counter]
-                defendant_value = self.get_piece(defendant_coordinate)
+                defendant_value = self.get_value_at_coordinate(defendant_coordinate)
                 attacker_coordinate = seq[i]
-                attacker_value = self.get_piece(attacker_coordinate)
+                attacker_value = self.get_value_at_coordinate(attacker_coordinate)
                 if attacker_value == self.ABSENCE:
                     continue
 
@@ -96,7 +96,7 @@ class PowerBoard:
         for j in range(self.y_size):
             for i in range(self.x_size):
                 t = (i, j)
-                if self.get_piece(t) == self.ABSENCE:
+                if self.get_value_at_coordinate(t) == self.ABSENCE:
                     empties.add(t)
 
         return empties
@@ -112,15 +112,16 @@ class PowerBoard:
         self.place_piece_at_coordinate(value, chosen_coordinate)
 
     def move_and_add_random_tile(self, direction):
-        self.move_pieces(direction)
-        self.add_random_tile()
-        self.print_to_console()
+        if self.is_move_possible_in_direction(direction):
+            self.move_pieces(direction)
+            self.add_random_tile()
+            self.print_to_console()
 
     def print_to_console(self):
         for line in self.board:
             print(line)
 
-        print()
+        print(self.score, '\n')
 
     def get_tile_evaluation_sequence(self, direction):
         if direction in self.tile_evaluation_sequence_dict:
@@ -151,3 +152,22 @@ class PowerBoard:
             self.tile_evaluation_sequence_dict[direction] = sequences
             return sequences
 
+    def is_move_possible_in_direction(self, direction):
+        tile_sequences = self.get_tile_evaluation_sequence(direction)
+        for seq in tile_sequences:
+            values = []
+
+            for item in seq:
+                values.append(self.get_value_at_coordinate(item))
+
+            if self.ABSENCE in values:
+                start = values.index(self.ABSENCE) + 1
+                for i in range(start, len(values)):
+                    if values[i] != self.ABSENCE:
+                        return True
+
+            for i in range(len(values)-1):
+                if values[i] != 0 and values[i] == values[i+1]:
+                    return True
+
+        return False
