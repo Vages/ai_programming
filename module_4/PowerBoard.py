@@ -3,8 +3,13 @@ import random
 
 
 class PowerBoard:
-    ABSENCE = 0
-    FREQUENCY_OF_FOURS = 0.1
+    """
+    Class representing a 2048 board. The reason for the name PowerBoard is that the pieces have values that are
+    powers of 2. And the name also has a certain awesomeness to it.
+    """
+
+    ABSENCE = 0  # Value of a tile representing absence.
+    FREQUENCY_OF_FOURS = 0.1  # How often fours spawn instead of twos
 
     def __init__(self, size):
         """
@@ -16,8 +21,8 @@ class PowerBoard:
 
         self.x_size, self.y_size = size
         self.board = []
-        self.score = 0
-        self.tile_evaluation_sequence_dict = {}
+        self.score = 0  # The points scored. The sum of the values of tiles resulting from combinations.
+        self.tile_evaluation_sequence_dict = {}  # Used for memoization
 
         for j in range(self.y_size):
             temp = []
@@ -30,10 +35,13 @@ class PowerBoard:
         return deepcopy(self.board)
 
     def get_value_at_coordinate(self, coordinate):
+        """
+        Returns value at a coordinate (x, y)
+        """
         x, y = coordinate
         return self.board[y][x]
 
-    def place_piece_at_coordinate(self, piece, coordinate):
+    def place_value_at_coordinate(self, piece, coordinate):
         x, y = coordinate
         self.board[y][x] = piece
 
@@ -53,44 +61,26 @@ class PowerBoard:
                     if attacker_value == self.ABSENCE:
                         continue
                     else:
-                        self.place_piece_at_coordinate(attacker_value, defendant_coordinate)
-                        self.place_piece_at_coordinate(self.ABSENCE, attacker_coordinate)
+                        self.place_value_at_coordinate(attacker_value, defendant_coordinate)
+                        self.place_value_at_coordinate(self.ABSENCE, attacker_coordinate)
                 else:
                     if defendant_value == attacker_value:
-                        self.place_piece_at_coordinate(2*attacker_value, defendant_coordinate)
+                        self.place_value_at_coordinate(2*attacker_value, defendant_coordinate)
                         self.score += 2*attacker_value
-                        self.place_piece_at_coordinate(self.ABSENCE, attacker_coordinate)
+                        self.place_value_at_coordinate(self.ABSENCE, attacker_coordinate)
                         defendant_counter += 1
                     else:
                         defendant_counter += 1
                         if defendant_counter == i:
                             continue
                         defendant_coordinate = seq[defendant_counter]
-                        self.place_piece_at_coordinate(attacker_value, defendant_coordinate)
-                        self.place_piece_at_coordinate(self.ABSENCE, attacker_coordinate)
-
-    def _rotate_coordinate_for_direction(self, coordinate, direction):
-
-        if direction == 'l':
-            return coordinate
-
-        x, y = coordinate
-
-        if direction == 'r':
-            n_x = self.x_size - 1 - x
-            n_y = self.y_size - 1 - y
-
-        elif direction == 'u':
-            n_x = self.x_size - 1 - y
-            n_y = x
-
-        elif direction == 'd':
-            n_x = y
-            n_y = self.y_size - 1 - x
-
-        return n_x, n_y
+                        self.place_value_at_coordinate(attacker_value, defendant_coordinate)
+                        self.place_value_at_coordinate(self.ABSENCE, attacker_coordinate)
 
     def get_empty_spaces(self):
+        """
+        Returns coordinates of all empty spaces on the board.
+        """
         empties = set()
 
         for j in range(self.y_size):
@@ -102,6 +92,10 @@ class PowerBoard:
         return empties
 
     def add_random_tile(self):
+        """
+        Adds a tile at one of the open spaces, picked at random (uniform distribution).
+        Value is either 2 or 4.
+        """
         empties = self.get_empty_spaces()
         chosen_coordinate = random.sample(empties, 1)[0]
 
@@ -109,9 +103,13 @@ class PowerBoard:
         if random.random() < self.FREQUENCY_OF_FOURS:
             value = 4
 
-        self.place_piece_at_coordinate(value, chosen_coordinate)
+        self.place_value_at_coordinate(value, chosen_coordinate)
 
     def move_and_add_random_tile(self, direction):
+        """
+        Executes a move in a direction if that is possible.
+        :param direction: u, d, l, or r
+        """
         if self.is_move_possible_in_direction(direction):
             self.move_pieces(direction)
             self.add_random_tile()
@@ -124,6 +122,11 @@ class PowerBoard:
         print(self.score, '\n')
 
     def get_tile_evaluation_sequence(self, direction):
+        """
+        Gets the sequence of evaluation for the tiles given a move in a direction.
+        :param direction: u, d, l, or r
+        :return: a set of the sequences
+        """
         if direction in self.tile_evaluation_sequence_dict:
             return self.tile_evaluation_sequence_dict[direction]
         else:
@@ -153,6 +156,10 @@ class PowerBoard:
             return sequences
 
     def is_move_possible_in_direction(self, direction):
+        """
+        Checks if it is possible to execute a move in the given direction.
+        :param direction: u, d, l, or r
+        """
         tile_sequences = self.get_tile_evaluation_sequence(direction)
         for seq in tile_sequences:
             values = []
