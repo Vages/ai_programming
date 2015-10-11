@@ -94,10 +94,41 @@ class TestPowerBoard(TestCase):
         score_before = self.normal_board.score
         self.normal_board.move_pieces('l')
         score_after = self.normal_board.score
-        self.assertEqual(score_before+4, score_after)
+        self.assertEqual(score_before+4, score_after, 'Four more points after two 2s are combined')
 
     def test_it_places_a_random_tile_when_told_to(self):
         a = self.normal_board.get_empty_spaces()
         self.normal_board.add_random_tile()
         b = self.normal_board.get_empty_spaces()
-        self.assertEqual(len(b)+1, len(a))
+        self.assertEqual(len(b)+1, len(a), "One less empty tile")
+
+    def test_it_gets_the_right_tile_evaluation_sequence_for_each_direction(self):
+        u = self.normal_board.get_tile_evaluation_sequence('u')
+        d = self.normal_board.get_tile_evaluation_sequence('d')
+        l = self.normal_board.get_tile_evaluation_sequence('l')
+        r = self.normal_board.get_tile_evaluation_sequence('r')
+
+        expected_u = {((0, 0), (0, 1), (0, 2), (0, 3)),
+                      ((1, 0), (1, 1), (1, 2), (1, 3)),
+                      ((2, 0), (2, 1), (2, 2), (2, 3)),
+                      ((3, 0), (3, 1), (3, 2), (3, 3))}
+
+        expected_d = {((0, 3), (0, 2), (0, 1), (0, 0)),
+                      ((1, 3), (1, 2), (1, 1), (1, 0)),
+                      ((2, 3), (2, 2), (2, 1), (2, 0)),
+                      ((3, 3), (3, 2), (3, 1), (3, 0))}
+
+        expected_l = {((0, 0), (1, 0), (2, 0), (3, 0)),
+                      ((0, 1), (1, 1), (2, 1), (3, 1)),
+                      ((0, 2), (1, 2), (2, 2), (3, 2)),
+                      ((0, 3), (1, 3), (2, 3), (3, 3))}
+
+        expected_r = {((3, 0), (2, 0), (1, 0), (0, 0)),
+                      ((3, 1), (2, 1), (1, 1), (0, 1)),
+                      ((3, 2), (2, 2), (1, 2), (0, 2)),
+                      ((3, 3), (2, 3), (1, 3), (0, 3))}
+
+        self.assertEqual(u, expected_u, "right sequence for up")
+        self.assertEqual(d, expected_d, "right sequence for down")
+        self.assertEqual(l, expected_l, "right sequence for left")
+        self.assertEqual(r, expected_r, "right sequence for right")

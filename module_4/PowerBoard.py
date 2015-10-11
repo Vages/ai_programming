@@ -17,6 +17,7 @@ class PowerBoard:
         self.x_size, self.y_size = size
         self.board = []
         self.score = 0
+        self.tile_evaluation_sequence_dict = {}
 
         for j in range(self.y_size):
             temp = []
@@ -37,37 +38,36 @@ class PowerBoard:
         self.board[y][x] = piece
 
     def move_pieces(self, direction):
-
-        if direction is 'l' or 'r':
-            x, y = self.x_size, self.y_size
-        else:
-            x, y = self.y_size, self.x_size
-
-        for j in range(y):
-            attack_counter = 0
-
-            for i in range(1, x):
-                attack_coordinate = self._rotate_coordinate_for_direction((attack_counter, j), direction)
-                examined_coordinate = self._rotate_coordinate_for_direction((i, j), direction)
-                piece_to_be_moved = self.get_piece(examined_coordinate)
-                piece_at_attack_field = self.get_piece(attack_coordinate)
-
-                if piece_to_be_moved is self.ABSENCE:
+        tile_sequences = self.get_tile_evaluation_sequence(direction)
+        for seq in tile_sequences:
+            defendant_counter = 0
+            for i in range(1, len(seq)):
+                defendant_coordinate = seq[defendant_counter]
+                defendant_value = self.get_piece(defendant_coordinate)
+                attacker_coordinate = seq[i]
+                attacker_value = self.get_piece(attacker_coordinate)
+                if attacker_value == self.ABSENCE:
                     continue
 
-                if piece_at_attack_field is self.ABSENCE:
-                    self.place_piece_at_coordinate(piece_to_be_moved, attack_coordinate)
-                    self.place_piece_at_coordinate(self.ABSENCE, examined_coordinate)
-                elif piece_at_attack_field == piece_to_be_moved:
-                    self.place_piece_at_coordinate(2*piece_at_attack_field, attack_coordinate)
-                    self.place_piece_at_coordinate(self.ABSENCE, examined_coordinate)
-                    attack_counter += 1
-                    self.score += 2*piece_at_attack_field
+                if defendant_value == self.ABSENCE:
+                    if attacker_value == self.ABSENCE:
+                        continue
+                    else:
+                        self.place_piece_at_coordinate(attacker_value, defendant_coordinate)
+                        self.place_piece_at_coordinate(self.ABSENCE, attacker_coordinate)
                 else:
-                    attack_counter += 1
-                    attack_coordinate = self._rotate_coordinate_for_direction((attack_counter, j), direction)
-                    self.place_piece_at_coordinate(piece_to_be_moved, attack_coordinate)
-                    self.place_piece_at_coordinate(self.ABSENCE, examined_coordinate)
+                    if defendant_value == attacker_value:
+                        self.place_piece_at_coordinate(2*attacker_value, defendant_coordinate)
+                        self.score += 2*attacker_value
+                        self.place_piece_at_coordinate(self.ABSENCE, attacker_coordinate)
+                        defendant_counter += 1
+                    else:
+                        defendant_counter += 1
+                        if defendant_counter == i:
+                            continue
+                        defendant_coordinate = seq[defendant_counter]
+                        self.place_piece_at_coordinate(attacker_value, defendant_coordinate)
+                        self.place_piece_at_coordinate(self.ABSENCE, attacker_coordinate)
 
     def _rotate_coordinate_for_direction(self, coordinate, direction):
 
@@ -114,3 +114,40 @@ class PowerBoard:
     def move_and_add_random_tile(self, direction):
         self.move_pieces(direction)
         self.add_random_tile()
+        self.print_to_console()
+
+    def print_to_console(self):
+        for line in self.board:
+            print(line)
+
+        print()
+
+    def get_tile_evaluation_sequence(self, direction):
+        if direction in self.tile_evaluation_sequence_dict:
+            return self.tile_evaluation_sequence_dict[direction]
+        else:
+            sequences = set()
+            if direction in ('l', 'r'):
+                for j in range(self.y_size):
+                    t_seq = []
+                    for i in range(self.x_size):
+                        t_seq.append((i, j))
+
+                    if direction == 'r':
+                        t_seq.reverse()
+
+                    sequences.add(tuple(t_seq))
+            else:
+                for i in range(self.x_size):
+                    t_seq = []
+                    for j in range(self.y_size):
+                        t_seq.append((i, j))
+
+                    if direction == 'd':
+                        t_seq.reverse()
+
+                    sequences.add(tuple(t_seq))
+
+            self.tile_evaluation_sequence_dict[direction] = sequences
+            return sequences
+
