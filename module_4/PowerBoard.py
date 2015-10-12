@@ -23,6 +23,7 @@ class PowerBoard:
         self.board = []
         self.score = 0  # The points scored. The sum of the values of tiles resulting from combinations.
         self.tile_evaluation_sequence_dict = {}  # Used for memoization
+        self.last_random_coordinate = (0, 0)
 
         for j in range(self.y_size):
             temp = []
@@ -103,6 +104,7 @@ class PowerBoard:
         if random.random() < self.FREQUENCY_OF_FOURS:
             value = 4
 
+        self.last_random_coordinate = chosen_coordinate
         self.place_value_at_coordinate(value, chosen_coordinate)
 
     def move_and_add_random_tile(self, direction):

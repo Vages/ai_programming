@@ -80,6 +80,10 @@ class Gfx(object):
                                  (self.ground_unit*(i+1), self.ground_unit*(j+1), self.ground_unit, self.ground_unit),
                                  10)
 
+        pygame.draw.rect(self.screen, self.hex_to_dec_tuple(self.TILE_COLORS[self.pb.ABSENCE]),
+                         (self.ground_unit*(self.pb.last_random_coordinate[0]+1), self.ground_unit*(self.pb.last_random_coordinate[1]+1),
+                          self.ground_unit, self.ground_unit), 3)
+
     @staticmethod
     def hex_to_dec_tuple(s):
         return int(s[2:4], 16), int(s[4:6], 16), int(s[6:8], 16), 0
