@@ -98,14 +98,15 @@ class PowerBoard:
         Value is either 2 or 4.
         """
         empties = self.get_empty_spaces()
-        chosen_coordinate = random.sample(empties, 1)[0]
+        if empties:
+            chosen_coordinate = random.sample(empties, 1)[0]
 
-        value = 2
-        if random.random() < self.FREQUENCY_OF_FOURS:
-            value = 4
+            value = 2
+            if random.random() < self.FREQUENCY_OF_FOURS:
+                value = 4
 
-        self.last_random_coordinate = chosen_coordinate
-        self.place_value_at_coordinate(value, chosen_coordinate)
+            self.last_random_coordinate = chosen_coordinate
+            self.place_value_at_coordinate(value, chosen_coordinate)
 
     def move_and_add_random_tile(self, direction):
         """
