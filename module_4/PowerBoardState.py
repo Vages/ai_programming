@@ -1,4 +1,5 @@
 from copy import deepcopy
+import itertools
 from module_4.PowerBoard import PowerBoard
 
 
@@ -10,10 +11,10 @@ class PowerBoardState(PowerBoard):
     """
 
     # Weight matrix found through optimization search
-    ORIGINAL_WEIGHT_MATRIX = ((2**15, 2**14, 2**13, 2**12),
-                              (2**8, 2**9, 2**10, 2**11),
-                              (2**7, 2**6, 2**5, 2**4),
-                              (2**0, 2**1, 2**2, 2**3))
+    ORIGINAL_WEIGHT_MATRIX = ((2**14, 2**13, 2**12, 2**11),
+                              (2**7, 2**8, 2**9, 2**10),
+                              (2**6, 2**5, 2**4, 2**3),
+                              (2**(-1), 2**0, 2**1, 2**2))
 
     """ORIGINAL_WEIGHT_MATRIX = ((0.135759,  0.121925,   0.102812,   0.099937),
                               (0.0997992, 0.0888405,  0.076711,   0.0724143),
@@ -27,11 +28,12 @@ class PowerBoardState(PowerBoard):
         temp = WEIGHT_MATRICES[i][::-1]
         WEIGHT_MATRICES.append(tuple(zip(*temp)))
 
-    transposed_matrix = tuple(zip(*ORIGINAL_WEIGHT_MATRIX))
-    WEIGHT_MATRICES.append(transposed_matrix)
-    for i in range(3):
-        temp = WEIGHT_MATRICES[i][::-1]
-        WEIGHT_MATRICES.append(tuple(zip(*temp)))
+    for i in range(4):
+        transposed_matrix = tuple(zip(*(WEIGHT_MATRICES[i])))
+        WEIGHT_MATRICES.append(transposed_matrix)
+
+    for j in range(len(WEIGHT_MATRICES)):
+        WEIGHT_MATRICES[j] = list(itertools.chain(*WEIGHT_MATRICES[j]))
 
     def __init__(self, recursion_depth):
         super(PowerBoardState, self).__init__((4, 4))
@@ -41,9 +43,10 @@ class PowerBoardState(PowerBoard):
 
     @staticmethod
     def get_recursion_depth_roof(empty_tiles):
-        if empty_tiles < 5:
-            return 2
-        return 2
+        base = 2
+        if empty_tiles < 7:
+            return base
+        return base
 
     def move_with_deep_copy(self, direction):
         """
@@ -79,8 +82,6 @@ class PowerBoardState(PowerBoard):
 
             board_list.append((two_board, probability_of_two))
 
-
-
         return board_list
 
     def is_terminal(self):
@@ -105,12 +106,12 @@ class PowerBoardState(PowerBoard):
         """
         accumulator = 0
 
-        for j in range(len(other)):
-            for i in range(len(other[0])):
-                c = self.board[j][i]
+        for j in range(4):
+            for i in range(4):
+                c = self.get_value_at_coordinate((i, j))
                 if c == self.ABSENCE:
                     continue
-                accumulator += c * other[j][i]
+                accumulator += c * other[j*4+i]
 
         return accumulator
 
@@ -180,6 +181,7 @@ class PowerBoardState(PowerBoard):
         reversed_sorted_values = reversed(sorted_values)
 
         if not (values == sorted_values or values == reversed_sorted_values):
-            return greatest_value**2.75
+            penalty = greatest_value*greatest_value/2
+            return penalty
 
         return 0
