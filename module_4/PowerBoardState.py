@@ -38,14 +38,12 @@ class PowerBoardState(PowerBoard):
     def __init__(self, recursion_depth):
         super(PowerBoardState, self).__init__((4, 4))
         self.recursion_depth = recursion_depth
-        self.children = {}
-        self.random_next_states = []
 
     @staticmethod
     def get_recursion_depth_roof(empty_tiles):
         base = 2
-        if empty_tiles < 7:
-            return base
+        if empty_tiles < 5:
+            return base+1
         return base
 
     def move_with_deep_copy(self, direction):
@@ -74,7 +72,7 @@ class PowerBoardState(PowerBoard):
             two_board.place_value_at_coordinate(2, space)
             probability_of_two = 1
 
-            if num_of_open_spaces < 4:
+            if num_of_open_spaces < 5:
                 probability_of_two = 1 - self.FREQUENCY_OF_FOURS
                 four_board = deepcopy(self)
                 four_board.place_value_at_coordinate(4, space)
@@ -172,6 +170,7 @@ class PowerBoardState(PowerBoard):
 
     def non_monotonic_penalty(self, sequence):
         values = []
+
         for coordinate in sequence:
             values.append(self.get_value_at_coordinate(coordinate))
 
@@ -181,7 +180,19 @@ class PowerBoardState(PowerBoard):
         reversed_sorted_values = reversed(sorted_values)
 
         if not (values == sorted_values or values == reversed_sorted_values):
-            penalty = greatest_value*greatest_value/2
+            penalty = greatest_value*greatest_value
             return penalty
 
         return 0
+
+    def largest_piece_not_in_corner_penalty(self):
+        largest_piece = max(self.board)
+        if self.get_value_at_coordinate((0, 0)) == largest_piece:
+            return 0
+        if self.get_value_at_coordinate((0, 3)) == largest_piece:
+            return 0
+        if self.get_value_at_coordinate((3, 0)) == largest_piece:
+            return 0
+        if self.get_value_at_coordinate((3, 3)) == largest_piece:
+            return 0
+        return largest_piece*largest_piece
