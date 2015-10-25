@@ -10,6 +10,7 @@ class PowerBoard:
 
     ABSENCE = 0  # Value of a tile representing absence.
     FREQUENCY_OF_FOURS = 0.1  # How often fours spawn instead of twos
+    tile_evaluation_sequence_dict = {}
 
     def __init__(self, size):
         """
@@ -22,7 +23,6 @@ class PowerBoard:
         self.x_size, self.y_size = size
         self.board = []
         self.points = 0  # The points scored. The sum of the values of tiles resulting from combinations.
-        self.tile_evaluation_sequence_dict = {}  # Used for memoization
         self.last_random_coordinate = (0, 0)
 
         for j in range(self.y_size):
@@ -124,20 +124,21 @@ class PowerBoard:
 
         print(self.points, '\n')
 
-    def get_tile_evaluation_sequence(self, direction):
+    @staticmethod
+    def get_tile_evaluation_sequence(direction):
         """
         Gets the sequence of evaluation for the tiles given a move in a direction.
         :param direction: u, d, l, or r
         :return: a set of the sequences
         """
-        if direction in self.tile_evaluation_sequence_dict:
-            return self.tile_evaluation_sequence_dict[direction]
+        if direction in PowerBoard.tile_evaluation_sequence_dict:
+            return PowerBoard.tile_evaluation_sequence_dict[direction]
         else:
             sequences = set()
             if direction in ('l', 'r'):
-                for j in range(self.y_size):
+                for j in range(4):
                     t_seq = []
-                    for i in range(self.x_size):
+                    for i in range(4):
                         t_seq.append((i, j))
 
                     if direction == 'r':
@@ -145,9 +146,9 @@ class PowerBoard:
 
                     sequences.add(tuple(t_seq))
             else:
-                for i in range(self.x_size):
+                for i in range(4):
                     t_seq = []
-                    for j in range(self.y_size):
+                    for j in range(4):
                         t_seq.append((i, j))
 
                     if direction == 'd':
@@ -155,7 +156,7 @@ class PowerBoard:
 
                     sequences.add(tuple(t_seq))
 
-            self.tile_evaluation_sequence_dict[direction] = sequences
+            PowerBoard.tile_evaluation_sequence_dict[direction] = sequences
             return sequences
 
     def is_move_possible_in_direction(self, direction):

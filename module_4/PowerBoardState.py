@@ -10,8 +10,8 @@ class PowerBoardState(PowerBoard):
     """
 
     # Weight matrix found through optimization search
-    ORIGINAL_WEIGHT_MATRIX = ((2**16, 2**15, 2**14, 2**13),
-                              (2**9, 2**10, 2**11, 2**12),
+    ORIGINAL_WEIGHT_MATRIX = ((2**15, 2**14, 2**13, 2**12),
+                              (2**8, 2**9, 2**10, 2**11),
                               (2**7, 2**6, 2**5, 2**4),
                               (2**0, 2**1, 2**2, 2**3))
 
@@ -21,6 +21,7 @@ class PowerBoardState(PowerBoard):
                               (0.0125498, 0.00992495, 0.00575871, 0.00335193))"""
 
     WEIGHT_MATRICES = [ORIGINAL_WEIGHT_MATRIX]  # Will contain the matrix rotated
+    NON_MONOTONIC_EVALUATION_SEQUENCES = PowerBoard.get_tile_evaluation_sequence('d').union(PowerBoard.get_tile_evaluation_sequence('r'))
 
     for i in range(3):
         temp = WEIGHT_MATRICES[i][::-1]
@@ -41,9 +42,8 @@ class PowerBoardState(PowerBoard):
     @staticmethod
     def get_recursion_depth_roof(empty_tiles):
         if empty_tiles < 5:
-            return 3
+            return 2
         return 2
-
 
     def move_with_deep_copy(self, direction):
         """
@@ -65,15 +65,21 @@ class PowerBoardState(PowerBoard):
         """
         open_spaces = self.get_empty_spaces()
         board_list = []
+        num_of_open_spaces = len(open_spaces)
         for space in open_spaces:
             two_board = deepcopy(self)
-            #four_board = deepcopy(self)
-
             two_board.place_value_at_coordinate(2, space)
-            #four_board.place_value_at_coordinate(4, space)
+            probability_of_two = 1
 
-            board_list.append((two_board, 1))
-            #board_list.append((four_board, self.FREQUENCY_OF_FOURS))
+            if num_of_open_spaces < 4:
+                probability_of_two = 1 - self.FREQUENCY_OF_FOURS
+                four_board = deepcopy(self)
+                four_board.place_value_at_coordinate(4, space)
+                board_list.append((four_board, self.FREQUENCY_OF_FOURS))
+
+            board_list.append((two_board, probability_of_two))
+
+
 
         return board_list
 
@@ -90,7 +96,7 @@ class PowerBoardState(PowerBoard):
             open_space_bonus = len(self.get_empty_spaces())
             scores.append(product+open_space_bonus)
 
-        return max(scores)
+        return max(scores)-self.get_non_monotonic_penalties()
 
     def entrywise_product(self, other):
         """
@@ -153,3 +159,27 @@ class PowerBoardState(PowerBoard):
                 accumulator += optimal_board_after_move.score()*probability
 
         return accumulator
+
+    def get_non_monotonic_penalties(self):
+
+        accumulator = 0
+
+        for seq in self.NON_MONOTONIC_EVALUATION_SEQUENCES:
+            accumulator += self.non_monotonic_penalty(seq)
+
+        return accumulator
+
+    def non_monotonic_penalty(self, sequence):
+        values = []
+        for coordinate in sequence:
+            values.append(self.get_value_at_coordinate(coordinate))
+
+        greatest_value = max(values)
+
+        sorted_values = sorted(values)
+        reversed_sorted_values = reversed(sorted_values)
+
+        if not (values == sorted_values or values == reversed_sorted_values):
+            return greatest_value**2.75
+
+        return 0
