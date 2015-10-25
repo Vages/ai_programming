@@ -21,7 +21,7 @@ class PowerBoard:
 
         self.x_size, self.y_size = size
         self.board = []
-        self.score = 0  # The points scored. The sum of the values of tiles resulting from combinations.
+        self.points = 0  # The points scored. The sum of the values of tiles resulting from combinations.
         self.tile_evaluation_sequence_dict = {}  # Used for memoization
         self.last_random_coordinate = (0, 0)
 
@@ -67,7 +67,7 @@ class PowerBoard:
                 else:
                     if defendant_value == attacker_value:
                         self.place_value_at_coordinate(2*attacker_value, defendant_coordinate)
-                        self.score += 2*attacker_value
+                        self.points += 2*attacker_value
                         self.place_value_at_coordinate(self.ABSENCE, attacker_coordinate)
                         defendant_counter += 1
                     else:
@@ -121,7 +121,7 @@ class PowerBoard:
         for line in self.board:
             print(line)
 
-        print(self.score, '\n')
+        print(self.points, '\n')
 
     def get_tile_evaluation_sequence(self, direction):
         """

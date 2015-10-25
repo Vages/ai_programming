@@ -91,9 +91,9 @@ class TestPowerBoard(TestCase):
         self.assertEqual(self.normal_board.get_board(), supposed_slided_board)
 
     def test_it_calculates_score_correctly(self):
-        score_before = self.normal_board.score
+        score_before = self.normal_board.points
         self.normal_board.move_pieces('l')
-        score_after = self.normal_board.score
+        score_after = self.normal_board.points
         self.assertEqual(score_before+4, score_after, 'Four more points after two 2s are combined')
 
     def test_it_places_a_random_tile_when_told_to(self):
