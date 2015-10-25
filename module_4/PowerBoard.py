@@ -25,12 +25,8 @@ class PowerBoard:
         self.points = 0  # The points scored. The sum of the values of tiles resulting from combinations.
         self.last_random_coordinate = (0, 0)
 
-        for j in range(self.y_size):
-            temp = []
-            for i in range(self.x_size):
-                temp.append(self.ABSENCE)
-
-            self.board.append(temp)
+        for j in range(self.y_size*self.x_size):
+            self.board.append(self.ABSENCE)
 
     def get_board(self):
         return deepcopy(self.board)
@@ -40,11 +36,11 @@ class PowerBoard:
         Returns value at a coordinate (x, y)
         """
         x, y = coordinate
-        return self.board[y][x]
+        return self.board[y*self.y_size+x]
 
     def place_value_at_coordinate(self, piece, coordinate):
         x, y = coordinate
-        self.board[y][x] = piece
+        self.board[y*self.y_size+x] = piece
 
     def move_pieces(self, direction):
         tile_sequences = self.get_tile_evaluation_sequence(direction)
@@ -119,10 +115,12 @@ class PowerBoard:
             self.print_to_console()
 
     def print_to_console(self):
-        for line in self.board:
-            print(line)
+        for i in range(len(self.board)):
+            if i % self.x_size == 0:
+                print()
+            print(str(self.board[i]) + ' ', end='')
 
-        print(self.points, '\n')
+        print('\n'+str(self.points), '\n')
 
     @staticmethod
     def get_tile_evaluation_sequence(direction):
