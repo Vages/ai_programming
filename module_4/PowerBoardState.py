@@ -10,13 +10,24 @@ class PowerBoardState(PowerBoard):
     """
 
     # Weight matrix found through optimization search
-    ORIGINAL_WEIGHT_MATRIX = ((0.135759,  0.121925,   0.102812,   0.099937),
+    ORIGINAL_WEIGHT_MATRIX = ((2**16, 2**15, 2**14, 2**13),
+                              (2**9, 2**10, 2**11, 2**12),
+                              (2**7, 2**6, 2**5, 2**4),
+                              (2**0, 2**1, 2**2, 2**3))
+
+    """ORIGINAL_WEIGHT_MATRIX = ((0.135759,  0.121925,   0.102812,   0.099937),
                               (0.0997992, 0.0888405,  0.076711,   0.0724143),
                               (0.060654,  0.0562579,  0.037116,   0.0161889),
-                              (0.0125498, 0.00992495, 0.00575871, 0.00335193))
+                              (0.0125498, 0.00992495, 0.00575871, 0.00335193))"""
 
     WEIGHT_MATRICES = [ORIGINAL_WEIGHT_MATRIX]  # Will contain the matrix rotated
 
+    for i in range(3):
+        temp = WEIGHT_MATRICES[i][::-1]
+        WEIGHT_MATRICES.append(tuple(zip(*temp)))
+
+    transposed_matrix = tuple(zip(*ORIGINAL_WEIGHT_MATRIX))
+    WEIGHT_MATRICES.append(transposed_matrix)
     for i in range(3):
         temp = WEIGHT_MATRICES[i][::-1]
         WEIGHT_MATRICES.append(tuple(zip(*temp)))
@@ -27,6 +38,13 @@ class PowerBoardState(PowerBoard):
         self.children = {}
         self.random_next_states = []
 
+    @staticmethod
+    def get_recursion_depth_roof(empty_tiles):
+        if empty_tiles < 5:
+            return 3
+        return 2
+
+
     def move_with_deep_copy(self, direction):
         """
         Makes a deep copy of this state and executes a move without placement of random tile.
@@ -35,7 +53,8 @@ class PowerBoardState(PowerBoard):
         """
         new_board = deepcopy(self)
         new_board.move_pieces(direction)
-        new_board.recursion_depth = self.recursion_depth - 1
+        new_board.recursion_depth = min(self.recursion_depth - 1,
+                                        PowerBoardState.get_recursion_depth_roof(len(new_board.get_empty_spaces())-1))
         return new_board
 
     def list_of_boards_after_random_tile_spawns(self):
@@ -48,13 +67,13 @@ class PowerBoardState(PowerBoard):
         board_list = []
         for space in open_spaces:
             two_board = deepcopy(self)
-            four_board = deepcopy(self)
+            #four_board = deepcopy(self)
 
             two_board.place_value_at_coordinate(2, space)
-            four_board.place_value_at_coordinate(4, space)
+            #four_board.place_value_at_coordinate(4, space)
 
-            board_list.append((two_board, 1-self.FREQUENCY_OF_FOURS))
-            board_list.append((four_board, self.FREQUENCY_OF_FOURS))
+            board_list.append((two_board, 1))
+            #board_list.append((four_board, self.FREQUENCY_OF_FOURS))
 
         return board_list
 
@@ -67,7 +86,9 @@ class PowerBoardState(PowerBoard):
         """
         scores = []
         for w in self.WEIGHT_MATRICES:
-            scores.append(self.entrywise_product(w))
+            product = self.entrywise_product(w)
+            open_space_bonus = len(self.get_empty_spaces())
+            scores.append(product+open_space_bonus)
 
         return max(scores)
 
@@ -91,6 +112,9 @@ class PowerBoardState(PowerBoard):
         directions = self.get_possible_move_directions()
         boards_after_move_in_direction = {}
 
+        if len(directions) == 1:
+            return directions[0]
+
         for d in directions:
             boards_after_move_in_direction[d] = self.move_with_deep_copy(d)
 
@@ -102,7 +126,8 @@ class PowerBoardState(PowerBoard):
         maximum = 0
         best_direction = None
 
-        for d, score in direction_scores:
+        for d in direction_scores:
+            score = direction_scores[d]
             if score > maximum:
                 best_direction = d
                 maximum = score
@@ -115,15 +140,16 @@ class PowerBoardState(PowerBoard):
         random_next_boards = self.list_of_boards_after_random_tile_spawns()
 
         for board, probability in random_next_boards:
-            if board.is_terminal:
-                accumulator += board.terminal_score() * probability
+            if board.is_terminal():
+                s = board.terminal_score()
+                accumulator += s * probability
             else:
                 boards_after_additional_move = []
-                for d in board.get_possible_move_directions:
+                for d in board.get_possible_move_directions():
                     boards_after_additional_move.append(board.move_with_deep_copy(d))
 
                 optimal_board_after_move = max(boards_after_additional_move, key=lambda x: x.score())
 
-                accumulator += optimal_board_after_move*probability
+                accumulator += optimal_board_after_move.score()*probability
 
         return accumulator
