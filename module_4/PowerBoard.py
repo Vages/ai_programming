@@ -180,3 +180,21 @@ class PowerBoard:
                     return True
 
         return False
+
+    def get_possible_move_directions(self):
+        """
+        Gets the directions that are possible to move in from this state.
+        """
+        c = ['u', 'd', 'l', 'r']
+        r = []
+        for d in c:
+            if self.is_move_possible_in_direction(d):
+                r.append(d)
+
+        return r
+
+    def is_game_over(self):
+        """
+        If there are no ways to move, the game is over.
+        """
+        return len(self.get_possible_move_directions()) == 0
