@@ -7,21 +7,31 @@ class PowerBoardState(PowerBoard):
     """
     Represents a search node in a 2048 agent.
 
-    Based on https://codemyroad.wordpress.com/2014/05/14/2048-ai-the-intelligent-bot/
+    Based in part on https://codemyroad.wordpress.com/2014/05/14/2048-ai-the-intelligent-bot/
     """
 
-    # Weight matrix found through optimization search
-    ORIGINAL_WEIGHT_MATRIX = ((2**14, 2**13, 2**12, 2**11),
-                              (2**7, 2**8, 2**9, 2**10),
-                              (2**6, 2**5, 2**4, 2**3),
-                              (2**(-1), 2**0, 2**1, 2**2))
+    # Essential to the algorithm is a weighting matrix, the use of which will be explained now:
 
-    """ORIGINAL_WEIGHT_MATRIX = ((0.135759,  0.121925,   0.102812,   0.099937),
-                              (0.0997992, 0.0888405,  0.076711,   0.0724143),
-                              (0.060654,  0.0562579,  0.037116,   0.0161889),
-                              (0.0125498, 0.00992495, 0.00575871, 0.00335193))"""
+    # In order to win a game of 2048, it is important that the high valued pieces are kept out of the way.
+    # This is because the larger pieces are the ones who are combined less frequently.
+    # A large piece in the middle of the board will block opportunities to combine pieces of lower value.
+    # By keeping the highest valued piece in a corner and the pieces of decreasing following it in a snake shape,
+    # the game is played optimally:
+    # The new pieces that appear will appear in the open area outside the end of the "snake",
+    # and because the larger pieces are locked in the snake, it will be simple to combine a newly appearing piece
+    # with a piece of equally low value at the end of the snake.
+
+    # The matrix consists of such weighting values, ordered in a snake shape.
+    # The weighting values are powers of some number r (radix)
+
+    r = 4
+    ORIGINAL_WEIGHT_MATRIX = ((r**14, r**13, r**12, r**11),
+                              (r**7, r**8, r**9, r**10),
+                              (r**6, r**5, r**4, r**3),
+                              (r**(-1), r**0, r**1, r**2))
 
     WEIGHT_MATRICES = [ORIGINAL_WEIGHT_MATRIX]  # Will contain the matrix rotated
+
     NON_MONOTONIC_EVALUATION_SEQUENCES = PowerBoard.get_tile_evaluation_sequence('d').union(PowerBoard.get_tile_evaluation_sequence('r'))
 
     for i in range(3):
@@ -41,9 +51,12 @@ class PowerBoardState(PowerBoard):
 
     @staticmethod
     def get_recursion_depth_roof(empty_tiles):
-        base = 2
-        if empty_tiles < 5:
-            return base+1
+        base = 1
+
+        if empty_tiles < 6:
+            return base + 1
+        if empty_tiles < 3:
+            return base + 2
         return base
 
     def move_with_deep_copy(self, direction):
@@ -72,13 +85,13 @@ class PowerBoardState(PowerBoard):
             two_board.place_value_at_coordinate(2, space)
             probability_of_two = 1
 
-            if num_of_open_spaces < 5:
+            if num_of_open_spaces < 20:
                 probability_of_two = 1 - self.FREQUENCY_OF_FOURS
                 four_board = deepcopy(self)
                 four_board.place_value_at_coordinate(4, space)
-                board_list.append((four_board, self.FREQUENCY_OF_FOURS))
+                board_list.append((four_board, self.FREQUENCY_OF_FOURS/num_of_open_spaces))
 
-            board_list.append((two_board, probability_of_two))
+            board_list.append((two_board, probability_of_two/num_of_open_spaces))
 
         return board_list
 
@@ -89,13 +102,14 @@ class PowerBoardState(PowerBoard):
         """
         Returns the score of the board if it is a terminal state.
         """
+
         scores = []
         for w in self.WEIGHT_MATRICES:
             product = self.entrywise_product(w)
             open_space_bonus = len(self.get_empty_spaces())
             scores.append(product+open_space_bonus)
 
-        return max(scores)-self.get_non_monotonic_penalties()
+        return max(scores) #- self.get_non_monotonic_penalties()
 
     def entrywise_product(self, other):
         """

@@ -112,7 +112,7 @@ class PowerBoard:
         if self.is_move_possible_in_direction(direction):
             self.move_pieces(direction)
             self.add_random_tile()
-            self.print_to_console()
+            # self.print_to_console()
 
     def print_to_console(self):
         for i in range(len(self.board)):
