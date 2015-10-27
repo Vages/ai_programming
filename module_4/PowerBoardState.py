@@ -29,10 +29,10 @@ class PowerBoardState(PowerBoard):
 
     r = 4  # Radix should be higher than 2, in order to encourage mergings of more important tiles
 
-    ORIGINAL_WEIGHT_MATRIX = ((r**14, r**13, r**12, r**11),
-                              (r**7, r**8, r**9, r**10),
-                              (r**6, r**5, r**4, r**3),
-                              (r**(-1), r**0, r**1, r**2))
+    ORIGINAL_WEIGHT_MATRIX = ((r**15, r**14, r**13, r**12),
+                              (r**8, r**9, r**10, r**11),
+                              (r**7, r**6, r**5, r**4),
+                              (r**0, r**1, r**2, r**3))
 
     WEIGHT_MATRICES = [ORIGINAL_WEIGHT_MATRIX]  # Will contain the matrix, rotated and transposed in all 8 ways
 
@@ -98,6 +98,7 @@ class PowerBoardState(PowerBoard):
         """
         Generates a list containing all boards that can be generated after a random tile spawn
         along with each board’s probability of being spawned.
+
         :return: [(board, probability), ...]
         """
 
