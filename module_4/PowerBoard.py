@@ -35,14 +35,23 @@ class PowerBoard:
         """
         Returns value at a coordinate (x, y)
         """
+
         x, y = coordinate
         return self.board[y*self.y_size+x]
 
-    def place_value_at_coordinate(self, piece, coordinate):
+    def place_value_at_coordinate(self, value, coordinate):
+        """
+        Places a value at a coordinate
+        """
+
         x, y = coordinate
-        self.board[y*self.y_size+x] = piece
+        self.board[y*self.y_size+x] = value
 
     def move_pieces(self, direction):
+        """
+        Moves the pieces of the game in the given direction without adding a random tile.
+        :param direction: u, d, l, or r
+        """
         tile_sequences = self.get_tile_evaluation_sequence(direction)
         for seq in tile_sequences:
             defendant_counter = 0
