@@ -3,7 +3,9 @@ __author__ = 'eirikvageskar'
 import time
 import basics.mnist_basics as mb
 import MnistNetwork
-import datetime.datetime as dt
+import datetime
+
+dt = datetime.datetime
 
 mn = MnistNetwork.MnistNetwork
 
@@ -51,12 +53,12 @@ if __name__ == '__main__':
 
     print('creating network')
 
-    hidden_layer_topology= [200, 150, 100]
+    hidden_layer_topology = [200, 150, 100]
     mnist_neural_net = mn(784, hidden_layer_topology, 10, training_cases, test_cases)
 
     a = time.time()
 
-    error_rates = mnist_neural_net.do_training(1)
+    error_rates = mnist_neural_net.do_training(20)
     print("Error rates:", error_rates)
     percentage_wrong_on_test_set = mnist_neural_net.get_percentage_of_tests_wrong()
     print("Error rate on test_set:", mnist_neural_net.get_percentage_of_tests_wrong())
@@ -72,7 +74,7 @@ if __name__ == '__main__':
         timestamp = dt.fromtimestamp(a)
         readable_timestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S')
         logfile.write("\n\nTest started at " + readable_timestamp)
-        logfile.write("\nTime elapsed:" + str(time_elapsed))
+        logfile.write("\nTime elapsed: " + str(time_elapsed))
         logfile.write("\nHidden layer topology: " + str(hidden_layer_topology))
         logfile.write("\nTraining error rates: " + str(error_rates))
         logfile.write("\nPercentage wrong on test cases: " + str(percentage_wrong_on_test_set))
