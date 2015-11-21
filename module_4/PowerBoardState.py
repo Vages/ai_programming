@@ -29,10 +29,10 @@ class PowerBoardState(PowerBoard):
 
     r = 4  # Radix should be higher than 2, in order to encourage mergings of more important tiles
 
-    ORIGINAL_WEIGHT_MATRIX = ((r**15, r**14, r**13, r**12),
-                              (r**8, r**9, r**10, r**11),
-                              (r**7, r**6, r**5, r**4),
-                              (r**0, r**1, r**2, r**3))
+    ORIGINAL_WEIGHT_MATRIX = ((r ** 14, r ** 13, r ** 12, r ** 11),
+                              (r ** 7, r ** 8, r ** 9, r ** 10),
+                              (r ** 6, r ** 5, r ** 4, r ** 3),
+                              (r ** (-1), r ** 0, r ** 1, r ** 2))
 
     WEIGHT_MATRICES = [ORIGINAL_WEIGHT_MATRIX]  # Will contain the matrix, rotated and transposed in all 8 ways
 
@@ -91,7 +91,7 @@ class PowerBoardState(PowerBoard):
         new_board = deepcopy(self)
         new_board.move_pieces(direction)
         new_board.recursion_depth = min(self.recursion_depth - 1,
-                                        PowerBoardState.get_recursion_depth_roof(len(new_board.get_empty_spaces())-1))
+                                        PowerBoardState.get_recursion_depth_roof(len(new_board.get_empty_spaces()) - 1))
         return new_board
 
     def list_of_boards_after_random_tile_spawns(self):
@@ -137,7 +137,7 @@ class PowerBoardState(PowerBoard):
         for w in self.WEIGHT_MATRICES:
             product = self.entrywise_product(w)
             open_space_bonus = len(self.get_empty_spaces())
-            scores.append(product+open_space_bonus)
+            scores.append(product + open_space_bonus)
 
         return max(scores)
 
@@ -156,7 +156,7 @@ class PowerBoardState(PowerBoard):
                 c = self.get_value_at_coordinate((i, j))
                 if c == self.ABSENCE:
                     continue
-                accumulator += c * other[j*4+i]
+                accumulator += c * other[j * 4 + i]
 
         return accumulator
 
@@ -220,6 +220,6 @@ class PowerBoardState(PowerBoard):
                     if next_board_score > max_score:
                         max_score = next_board_score
 
-                accumulator += max_score*probability
+                accumulator += max_score * probability
 
         return accumulator
