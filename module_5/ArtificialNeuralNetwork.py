@@ -6,14 +6,15 @@ import theano.tensor.nnet as Tann
 import numpy as np
 
 class ArtificialNeuralNetwork:
-    def __init__(self, input_nodes_no, hidden_nodes_topology, output_nodes_no, training_cases, test_cases, learning_rate=0.1):
-        self.learning_rate = learning_rate
+    def __init__(self, input_nodes_no, hidden_nodes_topology, output_nodes_no,
+                 training_cases, test_cases, learning_rate=0.1, act_func='sigmoid'):
+        self.learning_rate = self.original_learning_rate = learning_rate
         self.trainer = None
         self.test_cases = test_cases
         self.training_cases = training_cases
-        self.build_artificial_neural_network(input_nodes_no, hidden_nodes_topology, output_nodes_no)
+        self.build_artificial_neural_network(input_nodes_no, hidden_nodes_topology, output_nodes_no, act_func)
 
-    def build_artificial_neural_network(self, no_of_input_nodes, hidden_nodes_topology, output_nodes_no):
+    def build_artificial_neural_network(self, no_of_input_nodes, hidden_nodes_topology, output_nodes_no, act_func):
         network_topology = [no_of_input_nodes] + hidden_nodes_topology + [output_nodes_no]
 
         weights = []
@@ -28,11 +29,19 @@ class ArtificialNeuralNetwork:
         for i in range(1, len(network_topology)):
             biases.append(theano.shared(np.random.uniform(-.1, .1, size=network_topology[i])))
 
-        outputs = [Tann.sigmoid(T.dot(input_vector, weights[0]) + biases[0])]
+        activation_function = Tann.sigmoid
+
+        if act_func == 'sigmoid':
+            activation_function = Tann.sigmoid
+        elif act_func == 'tanh':
+            activation_function = T.tanh
+        else:
+            raise ValueError('Activation function must be sigmoid')
+
+        outputs = [activation_function(T.dot(input_vector, weights[0]) + biases[0])]
 
         for i in range(1, len(network_topology)-1):
-            print(i)
-            outputs.append(Tann.sigmoid(T.dot(outputs[i-1], weights[i]) + biases[i]))
+            outputs.append(activation_function(T.dot(outputs[i-1], weights[i]) + biases[i]))
 
         error = T.sum((expected_output_vector - outputs[-1])**2)
 
@@ -47,6 +56,7 @@ class ArtificialNeuralNetwork:
 
         self.trainer = theano.function([input_vector, expected_output_vector], error, updates=back_propagation_activations)
         self.predictor = theano.function([input_vector], outputs[-1])
+        self.error_for_input = theano.function([input_vector, expected_output_vector], error)
 
     def output_for_input(self, input_vector):
         """
@@ -57,6 +67,9 @@ class ArtificialNeuralNetwork:
         """
 
         return self.predictor(input_vector)
+
+    def error_for_one_example(self, input_vector, expected_output_vector):
+        return self.error_for_input(input_vector, expected_output_vector)
 
     def train_for_one_example(self, input_vector, expected_output_vector):
         """
@@ -69,7 +82,7 @@ class ArtificialNeuralNetwork:
 
         return self.trainer(input_vector, expected_output_vector)
 
-    def do_training(self, epochs=10000):
+    def do_training(self, epochs=20):
         """
         Trains the network on all its built-in training cases for the given number of epochs.
 
@@ -80,12 +93,14 @@ class ArtificialNeuralNetwork:
         errors = []
 
         for i in range(epochs):
+            self.learning_rate = max(self.original_learning_rate, 1/(i+1))
             error = 0
-            for c in self.training_cases:
-                error += self.train_for_one_example(c, c)
+
+            for input_v, output_v in self.training_cases:
+                error += self.train_for_one_example(input_v, output_v)
 
             errors.append(error)
-            print(i)
+            print("Epoch:", i)
 
         return errors
 
@@ -97,29 +112,7 @@ class ArtificialNeuralNetwork:
         """
         output_activations = []
 
-        for c in self.test_cases:
-            output_activations.append(self.output_for_input(c))
+        for input_v, output_v in self.test_cases:
+            output_activations.append(self.output_for_input(input_v))
 
         return output_activations
-
-
-def gen_all_bit_cases(num_bits):
-    def bits(n):
-        s = bin(n)[2:]
-        return [int(b) for b in '0'*(num_bits - len(s))+s]
-
-    return [bits(i) for i in range(2**num_bits)]
-
-if __name__ == '__main__':
-    input_no = 3
-    output_no = 3
-    hidden_top = [3, 2]
-    bit_cases = gen_all_bit_cases(3)
-    ann = ArtificialNeuralNetwork(input_no, hidden_top, output_no, bit_cases, bit cases)
-    errors = ann.do_training()
-    for e in errors:
-        print(e)
-
-    a = ann.predictor([1, 0, 0])
-    for b in a:
-        print(round(b))
