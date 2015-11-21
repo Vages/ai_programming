@@ -11,11 +11,11 @@ class MnistNetwork(ArtificialNeuralNetwork.ArtificialNeuralNetwork):
     Mnist-classification task
     """
 
-    def __init__(self, input_nodes_no, hidden_nodes_topology,
-                 output_nodes_no, training_cases, test_cases, learning_rate=0.1):
+    def __init__(self, input_nodes_no, hidden_nodes_topology, output_nodes_no, training_cases, test_cases,
+                 learning_rate=0.1, act_func='sigmoid', error_func='squared'):
 
         super(MnistNetwork, self).__init__(input_nodes_no, hidden_nodes_topology, output_nodes_no, training_cases,
-                                           test_cases, learning_rate)
+                                           test_cases, learning_rate, act_func, error_func)
 
     def get_percentage_of_tests_wrong(self, test_set=None):
         """

@@ -1,9 +1,12 @@
+import pickle
+
 __author__ = 'eirikvageskar'
 
 import time
 import basics.mnist_basics as mb
 import MnistNetwork
 import datetime
+import sys
 
 dt = datetime.datetime
 
@@ -39,26 +42,47 @@ def convert_all_labels_to_unary_lists(label_list, max_value=9):
 
 
 if __name__ == '__main__':
-    training_input_raw, training_labels_raw = mb.load_cases('all_flat_mnist_training_cases', nested=False)
-    test_input_raw, test_labels_raw = mb.load_cases('all_flat_mnist_testing_cases', nested=False)
 
-    training_input = apply_division_to_all_lists(training_input_raw)
-    training_labels = convert_all_labels_to_unary_lists(training_labels_raw)
+    try:
+        f_test = open('test_cases.pickle', 'rb')
+        f_training = open('training_cases.pickle', 'rb')
+        test_cases = pickle.load(f_test)
+        training_cases = pickle.load(f_training)
+        f_test.close()
+        f_test.close()
+        print('Loaded training and test sets with pickle')
 
-    test_input = apply_division_to_all_lists(test_input_raw)
-    test_labels = convert_all_labels_to_unary_lists(test_labels_raw)
+    except FileNotFoundError:
+        training_input_raw, training_labels_raw = mb.load_cases('all_flat_mnist_training_cases', nested=False)
+        test_input_raw, test_labels_raw = mb.load_cases('all_flat_mnist_testing_cases', nested=False)
 
-    test_cases = list(zip(test_input, test_labels))
-    training_cases = list(zip(training_input, training_labels))
+        training_input = apply_division_to_all_lists(training_input_raw)
+        training_labels = convert_all_labels_to_unary_lists(training_labels_raw)
+
+        test_input = apply_division_to_all_lists(test_input_raw)
+        test_labels = convert_all_labels_to_unary_lists(test_labels_raw)
+
+        test_cases = list(zip(test_input, test_labels))
+        training_cases = list(zip(training_input, training_labels))
+
+        f_test = open('test_cases.pickle', 'wb')
+        f_training = open('training_cases.pickle', 'wb')
+        pickle.dump(test_cases, f_test)
+        pickle.dump(training_cases, f_training)
+        f_test.close()
+        f_training.close()
+        print('Saved training and test sets with pickle')
 
     print('creating network')
 
     hidden_layer_topology = [200, 150, 100]
-    mnist_neural_net = mn(784, hidden_layer_topology, 10, training_cases, test_cases)
+    error_function = 'binary_cross'
+    mnist_neural_net = mn(784, hidden_layer_topology, 10, training_cases, test_cases, error_func=error_function)
 
     a = time.time()
 
-    error_rates = mnist_neural_net.do_training(20)
+    no_of_epochs = 20
+    error_rates = mnist_neural_net.do_training(no_of_epochs)
     print("Error rates:", error_rates)
     percentage_wrong_on_test_set = mnist_neural_net.get_percentage_of_tests_wrong()
     print("Error rate on test_set:", mnist_neural_net.get_percentage_of_tests_wrong())
@@ -76,7 +100,9 @@ if __name__ == '__main__':
         logfile.write("\n\nTest started at " + readable_timestamp)
         logfile.write("\nTime elapsed: " + str(time_elapsed))
         logfile.write("\nHidden layer topology: " + str(hidden_layer_topology))
-        logfile.write("\nTraining error rates: " + str(error_rates))
+        logfile.write("\nError function: " + error_function)
+        logfile.write("\nNumber of epochs: " + str(no_of_epochs))
+        logfile.write("\nTraining error rates: " + str(list(enumerate(error_rates, 1))))
         logfile.write("\nPercentage wrong on test cases: " + str(percentage_wrong_on_test_set))
         logfile.write("\nPercentage wrong on training cases: " + str(percentage_wrong_on_training_set))
 
