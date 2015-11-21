@@ -7,14 +7,15 @@ import numpy as np
 
 class ArtificialNeuralNetwork:
     def __init__(self, input_nodes_no, hidden_nodes_topology, output_nodes_no,
-                 training_cases, test_cases, learning_rate=0.1, act_func='sigmoid'):
+                 training_cases, test_cases, learning_rate=0.1, act_func='sigmoid', error_func='squared'):
         self.learning_rate = self.original_learning_rate = learning_rate
         self.trainer = None
         self.test_cases = test_cases
         self.training_cases = training_cases
-        self.build_artificial_neural_network(input_nodes_no, hidden_nodes_topology, output_nodes_no, act_func)
+        self.error_function = error_func
+        self.build_artificial_neural_network(input_nodes_no, hidden_nodes_topology, output_nodes_no, act_func, error_func)
 
-    def build_artificial_neural_network(self, no_of_input_nodes, hidden_nodes_topology, output_nodes_no, act_func):
+    def build_artificial_neural_network(self, no_of_input_nodes, hidden_nodes_topology, output_nodes_no, act_func, error_func):
         network_topology = [no_of_input_nodes] + hidden_nodes_topology + [output_nodes_no]
 
         weights = []
@@ -36,14 +37,19 @@ class ArtificialNeuralNetwork:
         elif act_func == 'tanh':
             activation_function = T.tanh
         else:
-            raise ValueError('Activation function must be sigmoid')
+            raise ValueError('Activation function must be "sigmoid" or "tanh"')
 
         outputs = [activation_function(T.dot(input_vector, weights[0]) + biases[0])]
 
         for i in range(1, len(network_topology)-1):
             outputs.append(activation_function(T.dot(outputs[i-1], weights[i]) + biases[i]))
 
-        error = T.sum((expected_output_vector - outputs[-1])**2)
+        if error_func == 'squared':
+            error = T.sum((expected_output_vector - outputs[-1])**2)
+        elif error_func == 'binary_cross':
+            error = Tann.binary_crossentropy(outputs[-1], expected_output_vector).mean()
+        else:
+            raise ValueError('Error function must be "squared" or "binary_cross"')
 
         params = []
 
@@ -100,7 +106,8 @@ class ArtificialNeuralNetwork:
                 error += self.train_for_one_example(input_v, output_v)
 
             errors.append(error)
-            print("Epoch:", i)
+            print("Epoch:", i+1)
+            print("\tError rate:", error)
 
         return errors
 
