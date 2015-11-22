@@ -6,14 +6,20 @@ import theano.tensor.nnet as Tann
 import numpy as np
 
 class ArtificialNeuralNetwork:
-    def __init__(self, input_nodes_no, hidden_nodes_topology, output_nodes_no,
-                 training_cases, test_cases, learning_rate=0.1, act_func='sigmoid', error_func='squared'):
+    def __init__(self, input_nodes_no, hidden_nodes_topology, output_nodes_no, training_inputs=None,
+                 training_outputs=None, test_inputs=None, test_outputs=None, learning_rate=0.1,
+                 activation_function='sigmoid', error_function='squared'):
+
+        self.training_inputs = training_inputs
+        self.training_outputs = training_outputs
+        self.test_inputs = test_inputs
+        self.test_outputs = test_outputs
+
         self.learning_rate = self.original_learning_rate = learning_rate
-        self.trainer = None
-        self.test_cases = test_cases
-        self.training_cases = training_cases
-        self.error_function = error_func
-        self.build_artificial_neural_network(input_nodes_no, hidden_nodes_topology, output_nodes_no, act_func, error_func)
+        self.error_function = error_function
+
+        self.build_artificial_neural_network(input_nodes_no, hidden_nodes_topology, output_nodes_no,
+                                             activation_function, error_function)
 
     def build_artificial_neural_network(self, no_of_input_nodes, hidden_nodes_topology, output_nodes_no, act_func, error_func):
         network_topology = [no_of_input_nodes] + hidden_nodes_topology + [output_nodes_no]
@@ -29,8 +35,6 @@ class ArtificialNeuralNetwork:
 
         for i in range(1, len(network_topology)):
             biases.append(theano.shared(np.random.uniform(-.1, .1, size=network_topology[i])))
-
-        activation_function = Tann.sigmoid
 
         if act_func == 'sigmoid':
             activation_function = Tann.sigmoid
@@ -102,7 +106,8 @@ class ArtificialNeuralNetwork:
             self.learning_rate = max(self.original_learning_rate, 1/(i+1))
             error = 0
 
-            for input_v, output_v in self.training_cases:
+            for j in range(len(self.training_inputs)):
+                input_v, output_v = self.training_inputs[j], self.training_outputs[j]
                 error += self.train_for_one_example(input_v, output_v)
 
             errors.append(error)
@@ -119,7 +124,8 @@ class ArtificialNeuralNetwork:
         """
         output_activations = []
 
-        for input_v, output_v in self.test_cases:
+        for j in range(len(self.test_outputs)):
+            input_v, output_v = self.test_inputs[j], self.test_outputs[j]
             output_activations.append(self.output_for_input(input_v))
 
         return output_activations

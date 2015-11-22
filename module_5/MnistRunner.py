@@ -13,7 +13,6 @@ dt = datetime.datetime
 mn = MnistNetwork.MnistNetwork
 
 
-
 def apply_division_to_all_lists(list_of_lists, factor=255):
     """
     Downscales a lists of lists by a certain factor
@@ -43,50 +42,58 @@ def convert_all_labels_to_unary_lists(label_list, max_value=9):
 
 if __name__ == '__main__':
 
-    topologies = [[100],
-                  [200],
-                  [300],
-                  [100, 100],
-                  [200, 200]]
-
+    topologies = [[200, 150, 100]]
 
     try:
-        f_test = open('test_cases.pickle', 'rb')
-        f_training = open('training_cases.pickle', 'rb')
-        test_cases = pickle.load(f_test)
-        training_cases = pickle.load(f_training)
-        f_test.close()
-        f_test.close()
+        f_training_inputs = open('training_inputs.pickle', 'rb')
+        f_training_outputs = open('training_outputs.pickle', 'rb')
+        f_test_inputs = open('test_inputs.pickle', 'rb')
+        f_test_outputs = open('test_outputs.pickle', 'rb')
+
+        training_inputs = pickle.load(f_training_inputs)
+        training_outputs = pickle.load(f_training_outputs)
+        test_inputs = pickle.load(f_test_inputs)
+        test_outputs = pickle.load(f_test_outputs)
+
+        f_training_inputs.close()
+        f_training_outputs.close()
+        f_test_inputs.close()
+        f_test_outputs.close()
+
         print('Loaded training and test sets with pickle')
 
     except FileNotFoundError:
-        training_input_raw, training_labels_raw = mb.load_cases('all_flat_mnist_training_cases', nested=False)
-        test_input_raw, test_labels_raw = mb.load_cases('all_flat_mnist_testing_cases', nested=False)
+        training_inputs_raw, training_labels_raw = mb.load_cases('all_flat_mnist_training_cases', nested=False)
+        test_inputs_raw, test_labels_raw = mb.load_cases('all_flat_mnist_testing_cases', nested=False)
 
-        training_input = apply_division_to_all_lists(training_input_raw)
-        training_labels = convert_all_labels_to_unary_lists(training_labels_raw)
+        training_inputs = apply_division_to_all_lists(training_inputs_raw)
+        training_outputs = convert_all_labels_to_unary_lists(training_labels_raw)
+        test_inputs = apply_division_to_all_lists(test_inputs_raw)
+        test_outputs = convert_all_labels_to_unary_lists(test_labels_raw)
 
-        test_input = apply_division_to_all_lists(test_input_raw)
-        test_labels = convert_all_labels_to_unary_lists(test_labels_raw)
+        f_test_inputs = open('test_inputs.pickle', 'wb')
+        f_test_outputs = open('test_outputs.pickle', 'wb')
+        f_training_inputs = open('training_inputs.pickle', 'wb')
+        f_training_outputs = open('training_outputs.pickle', 'wb')
 
-        test_cases = list(zip(test_input, test_labels))
-        training_cases = list(zip(training_input, training_labels))
+        pickle.dump(test_inputs, f_test_inputs)
+        pickle.dump(test_outputs, f_test_outputs)
+        pickle.dump(training_inputs, f_training_inputs)
+        pickle.dump(training_outputs, f_training_outputs)
 
-        f_test = open('test_cases.pickle', 'wb')
-        f_training = open('training_cases.pickle', 'wb')
-        pickle.dump(test_cases, f_test)
-        pickle.dump(training_cases, f_training)
-        f_test.close()
-        f_training.close()
+        f_test_inputs.close()
+        f_test_outputs.close()
+        f_training_inputs.close()
+        f_training_outputs.close()
+
         print('Saved training and test sets with pickle')
-
-    print('creating network')
 
     for t in topologies:
         for i in range(20):
             hidden_layer_topology = t
             error_function = 'binary_cross'
-            mnist_neural_net = mn(784, hidden_layer_topology, 10, training_cases, test_cases, error_func=error_function)
+            mnist_neural_net = mn(784, hidden_layer_topology, 10, training_inputs, training_outputs, test_inputs,
+                                  test_outputs, error_function=error_function)
 
             a = time.time()
 
@@ -95,7 +102,10 @@ if __name__ == '__main__':
             print("Error rates:", error_rates)
             percentage_wrong_on_test_set = mnist_neural_net.get_percentage_of_tests_wrong()
             print("Error rate on test_set:", mnist_neural_net.get_percentage_of_tests_wrong())
-            percentage_wrong_on_training_set = mnist_neural_net.get_percentage_of_tests_wrong(mnist_neural_net.training_cases)
+            percentage_wrong_on_training_set = \
+                mnist_neural_net.get_percentage_of_tests_wrong(mnist_neural_net.training_inputs,
+                                                               mnist_neural_net.training_outputs)
+
             print("Error rate on training_set:", percentage_wrong_on_training_set)
 
             b = time.time()
@@ -103,15 +113,17 @@ if __name__ == '__main__':
             time_elapsed = round(b-a)
             print('Time elapsed during training and testing:', time_elapsed)
 
-            with open("mnist_log.txt", "a") as logfile:
-                timestamp = dt.fromtimestamp(a)
-                readable_timestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S')
-                logfile.write("\n\nTest started at " + readable_timestamp)
-                logfile.write("\nTime elapsed: " + str(time_elapsed))
-                logfile.write("\nHidden layer topology: " + str(hidden_layer_topology))
-                logfile.write("\nError function: " + error_function)
-                logfile.write("\nNumber of epochs: " + str(no_of_epochs))
-                logfile.write("\nTraining error rates: " + str(list(enumerate(error_rates, 1))))
-                logfile.write("\nPercentage wrong on test cases: " + str(percentage_wrong_on_test_set))
-                logfile.write("\nPercentage wrong on training cases: " + str(percentage_wrong_on_training_set))
+            logfile = open("mnist_log.txt", "a")
 
+            timestamp = dt.fromtimestamp(a)
+            readable_timestamp = timestamp.strftime('%Y-%m-%d %H:%M:%S')
+            logfile.write("\n\nTest started at " + readable_timestamp)
+            logfile.write("\nTime elapsed: " + str(time_elapsed))
+            logfile.write("\nHidden layer topology: " + str(hidden_layer_topology))
+            logfile.write("\nError function: " + error_function)
+            logfile.write("\nNumber of epochs: " + str(no_of_epochs))
+            logfile.write("\nTraining error rates: " + str(list(enumerate(error_rates, 1))))
+            logfile.write("\nPercentage wrong on test cases: " + str(percentage_wrong_on_test_set))
+            logfile.write("\nPercentage wrong on training cases: " + str(percentage_wrong_on_training_set))
+
+            logfile.close()
