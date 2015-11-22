@@ -129,3 +129,15 @@ class ArtificialNeuralNetwork:
             output_activations.append(self.output_for_input(input_v))
 
         return output_activations
+
+    def blind_test(self, feature_sets):
+        """
+        Implements the blind_test function required in the report
+        """
+
+        outputs = []
+
+        for input_v in feature_sets:
+            outputs.append(self.output_for_input(input_v))
+
+        return outputs

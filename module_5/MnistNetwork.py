@@ -39,18 +39,6 @@ class MnistNetwork(ArtificialNeuralNetwork.ArtificialNeuralNetwork):
 
         return no_of_errors/len(test_inputs)
 
-    def blind_test(self, feature_sets):
-        """
-        Implements the blind_test function required in the report
-        """
-
-        outputs = []
-
-        for input_v in feature_sets:
-            outputs.append(self.output_for_input(input_v))
-
-        return outputs
-
 
 def find_maximum_list_entry_index(number_list):
     """
