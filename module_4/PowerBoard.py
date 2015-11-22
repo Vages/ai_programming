@@ -39,6 +39,9 @@ class PowerBoard:
         x, y = coordinate
         return self.board[y*self.y_size+x]
 
+    def get_max_tile(self):
+        return max(self.board)
+
     def place_value_at_coordinate(self, value, coordinate):
         """
         Places a value at a coordinate
