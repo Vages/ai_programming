@@ -14,6 +14,7 @@ Ann = ArtificialNeuralNetwork.ArtificialNeuralNetwork
 
 
 def has_max_tile_in_corner(board):
+    # Did not prove to have much effect using the first training set.
     coordinates = ((0,0), (0, -1), (-1, 0), (-1, -1))
     middle_coordinates = ((1, 1), (1, 2), (2, 1), (2, 2))
 
@@ -36,15 +37,21 @@ def has_max_tile_in_corner(board):
 
     return 0.5
 
+
 def flatten_lists(x):
     return [item for sublist in x for item in sublist]
 
 
+def normalize_list(x):
+    m = max(x)
+    return [entry/m for entry in x]
+
+
 def flatten_lists_and_normalize(x):
-    max_bonus = has_max_tile_in_corner(x)
+    #max_bonus = has_max_tile_in_corner(x)
     a = flatten_lists(x)
-    m = max(a)
-    return [entry/m for entry in a]+[max_bonus]
+    return normalize_list(a) + [PowerBoardAnn._number_of_merges_horizontally(x),
+                                PowerBoardAnn._number_of_merges_vertically(x)]  #+[max_bonus]
 
 
 def convert_int_to_unary_list(integer, max_value=3):
@@ -69,7 +76,7 @@ def find_maximum_list_entry_index(number_list):
 class PowerBoardAnn(Ann):
     def __init__(self, input_nodes_no, hidden_nodes_topology, output_nodes_no, training_inputs=None,
                  training_outputs=None, test_inputs=None, test_outputs=None, learning_rate=0.1,
-                 activation_function='sigmoid', error_function='binary_cross', preprocessing_method=flatten_lists):
+                 activation_function='sigmoid', error_function='binary_cross', preprocessing_method=flatten_lists_and_normalize):
 
         super(PowerBoardAnn, self).__init__(input_nodes_no, hidden_nodes_topology, output_nodes_no, training_inputs,
                                             training_outputs, test_inputs, test_outputs, learning_rate,
@@ -120,10 +127,39 @@ class PowerBoardAnn(Ann):
 
         return no_of_errors/len(test_inputs)
 
+    def evaluate_one_board(self, input_vector):
+        output = self.output_for_input(self.preprocessing_method(input_vector))
+        return max(enumerate(output), key=lambda x: x[1])[0]
+
+    @staticmethod
+    def _number_of_merges_horizontally(board_2d):
+        merges = 0
+
+        for row in board_2d:
+
+            for i in range(len(row)):
+                row_i = row[i]
+                if row_i == 0:
+                    continue
+                for j in range(i+1, len(row)):
+                    row_j = row[j]
+                    if row_j == row_i:
+                        merges += 1
+                    elif row_j == 0:
+                        continue
+                    else:
+                        break
+
+        return merges
+
+    @staticmethod
+    def _number_of_merges_vertically(board_2d):
+        return PowerBoardAnn._number_of_merges_horizontally(zip(*board_2d))  #Transposes the matrix
+
 if __name__ == '__main__':
-    hidden_layer_topology = [50, 40, 30, 20]
+    hidden_layer_topology = [20]
     error_function = 'binary_cross'
-    pba = PowerBoardAnn(17, hidden_layer_topology, 4, preprocessing_method=flatten_lists_and_normalize)
+    pba = PowerBoardAnn(18, hidden_layer_topology, 4)
     pba.read_pickle()
     print(pba.get_percentage_of_tests_wrong())
 

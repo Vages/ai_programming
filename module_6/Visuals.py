@@ -28,8 +28,8 @@ BACKGROUND_COLOR_DICT = {
 
 
 class GameWindow(Frame):
-    def __init__(self):
-        Frame.__init__(self)
+    def __init__(self, parent):
+        Frame.__init__(self, parent)
 
         self.grid()
         self.master.title('2048')
@@ -83,3 +83,5 @@ class GameWindow(Frame):
                         bg=BACKGROUND_COLOR_DICT[digit],
                         fg=foreground_color)
         self.update_idletasks()
+
+        return
