@@ -34,21 +34,38 @@ class MnistNetwork(ArtificialNeuralNetwork.ArtificialNeuralNetwork):
         for i in range(len(test_inputs)):
             input_v, output_v = test_inputs[i], test_outputs[i]
             network_output = self.output_for_input(input_v)
-            if find_maximum_list_entry_index(network_output) != output_v.index(1):
+            if self.find_maximum_list_entry_index(network_output) != output_v.index(1):
                 no_of_errors += 1
 
         return no_of_errors/len(test_inputs)
 
+    def blind_test(self, feature_sets):
+        """
+        Implements the blind_test function required in the report
+        """
 
-def find_maximum_list_entry_index(number_list):
-    """
-    Finds the index of the item with the highest value in a list.
+        outputs = []
 
-    :param number_list: A list of numbers or some other comparable.
-    :return: The index of the maximum valued item.
-    """
+        for input_v in feature_sets:
+            outputs.append(self.output_for_input(input_v))
 
-    return max(enumerate(number_list), key=lambda x: x[1])[0]
+        numbers = []
+
+        for o in outputs:
+            numbers.append(self.find_maximum_list_entry_index(o))
+
+        return outputs
+
+    @staticmethod
+    def find_maximum_list_entry_index(number_list):
+        """
+        Finds the index of the item with the highest value in a list.
+
+        :param number_list: A list of numbers or some other comparable.
+        :return: The index of the maximum valued item.
+        """
+
+        return max(enumerate(number_list), key=lambda x: x[1])[0]
 
 
 
