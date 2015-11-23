@@ -13,31 +13,6 @@ from module_5 import ArtificialNeuralNetwork
 Ann = ArtificialNeuralNetwork.ArtificialNeuralNetwork
 
 
-def has_max_tile_in_corner(board):
-    # Did not prove to have much effect using the first training set.
-    coordinates = ((0,0), (0, -1), (-1, 0), (-1, -1))
-    middle_coordinates = ((1, 1), (1, 2), (2, 1), (2, 2))
-
-    maxes = []
-
-    for row in board:
-        maxes.append(max(row))
-
-    m = max(maxes)
-
-    for c in coordinates:
-        x, y = c
-        if board[y][x] == m:
-            return 1
-
-    for c in middle_coordinates:
-        x, y = c
-        if board[y][x] == m:
-            return 0
-
-    return 0.5
-
-
 def flatten_lists(x):
     return [item for sublist in x for item in sublist]
 
@@ -50,8 +25,10 @@ def normalize_list(x):
 def flatten_lists_and_normalize(x):
     #max_bonus = has_max_tile_in_corner(x)
     a = flatten_lists(x)
-    return normalize_list(a) + [PowerBoardAnn._number_of_merges_horizontally(x),
-                                PowerBoardAnn._number_of_merges_vertically(x)]  #+[max_bonus]
+    return normalize_list(a) \
+           + [PowerBoardAnn._number_of_merges_horizontally(x),
+              PowerBoardAnn._number_of_merges_vertically(x)] \
+           + PowerBoardAnn._open_spaces_in_each_row(x) + PowerBoardAnn._open_spaces_in_each_column(x)  #+[max_bonus]
 
 
 def convert_int_to_unary_list(integer, max_value=3):
@@ -129,37 +106,71 @@ class PowerBoardAnn(Ann):
 
     def evaluate_one_board(self, input_vector):
         output = self.output_for_input(self.preprocessing_method(input_vector))
-        return max(enumerate(output), key=lambda x: x[1])[0]
+
+        enumerated_output = enumerate(output)
+
+        sorted_enumerated_output = sorted(enumerated_output, key=lambda x:-x[1])
+
+        preferences = []
+
+        for elem in sorted_enumerated_output:
+            preferences.append(elem[0])
+
+        return preferences
 
     @staticmethod
     def _number_of_merges_horizontally(board_2d):
         merges = 0
 
         for row in board_2d:
-
+            already_merged_in_row = []
             for i in range(len(row)):
+                if i in already_merged_in_row:
+                    continue
                 row_i = row[i]
+
                 if row_i == 0:
                     continue
                 for j in range(i+1, len(row)):
                     row_j = row[j]
                     if row_j == row_i:
                         merges += 1
+                        already_merged_in_row.append(j)
                     elif row_j == 0:
                         continue
                     else:
                         break
 
-        return merges
+        return merges/8
 
     @staticmethod
     def _number_of_merges_vertically(board_2d):
         return PowerBoardAnn._number_of_merges_horizontally(zip(*board_2d))  #Transposes the matrix
 
+    @staticmethod
+    def _open_spaces_in_each_row(board_2d):
+
+        open_spaces = []
+
+        for row in board_2d:
+            accumulator = 0
+            for space in row:
+                if space == 0:
+                    accumulator += 1
+
+            open_spaces.append(accumulator/4)
+
+        return open_spaces
+
+    @staticmethod
+    def _open_spaces_in_each_column(board_2d):
+        return PowerBoardAnn._open_spaces_in_each_row(zip(*board_2d))
+
+
 if __name__ == '__main__':
-    hidden_layer_topology = [20]
+    hidden_layer_topology = [50]
     error_function = 'binary_cross'
-    pba = PowerBoardAnn(18, hidden_layer_topology, 4)
+    pba = PowerBoardAnn(26, hidden_layer_topology, 4, error_function='squared')
     pba.read_pickle()
     print(pba.get_percentage_of_tests_wrong())
 
