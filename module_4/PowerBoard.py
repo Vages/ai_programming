@@ -132,7 +132,8 @@ class PowerBoard:
                 print()
             print(str(self.board[i]) + ' ', end='')
 
-        print('\n'+str(self.points), '\n')
+        print()
+        #print('\n'+str(self.points), '\n')
 
     @staticmethod
     def get_tile_evaluation_sequence(direction):
