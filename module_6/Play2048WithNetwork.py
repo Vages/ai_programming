@@ -1,17 +1,17 @@
+__author__ = 'eirikvageskar'
+
 import random
 import statistics
 import time
 from math import log
-from tkinter import Tk
 import ai2048demo
 
 import datetime
+
 dt = datetime.datetime
 
-__author__ = 'eirikvageskar'
 from module_4.PowerBoard import PowerBoard
 from PowerBoardAnn import PowerBoardAnn
-from Visuals import GameWindow
 import sys
 
 
@@ -29,14 +29,18 @@ def convert_board_to_exponents(board):
 def convert_list_to_2d(board_list):
     return [board_list[:4], board_list[4:8], board_list[8:12], board_list[12:]]
 
+
 if __name__ == '__main__':
     directions = ('u', 'r', 'd', 'l')
 
-    hidden_layer_topology = [20, 20]
-    error_function = 'binary_cross'
+    no_of_epochs = int(sys.argv[1])
+    raw_topology = sys.argv[2]
+    error_function = sys.argv[3]
+
+    hidden_layer_topology = [int(raw) for raw in raw_topology.split(";")]
+
     pba = PowerBoardAnn(26, hidden_layer_topology, 4)
     pba.read_pickle()
-    no_of_epochs = 10
     error_rates = pba.do_training(no_of_epochs)
 
     start_time = time.time()
