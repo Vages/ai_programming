@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     hidden_layer_topology = [int(raw) for raw in raw_topology.split(";")]
 
-    pba = PowerBoardAnn(26, hidden_layer_topology, 4)
+    pba = PowerBoardAnn(51, hidden_layer_topology, 4)
     pba.read_pickle()
     error_rates = pba.do_training(no_of_epochs)
 
@@ -56,11 +56,14 @@ if __name__ == '__main__':
                 ann_best_tiles.append(max(pb.get_board()))
                 break
             network_output = pba.evaluate_one_board(convert_list_to_2d(pb.get_board()))
+            pb.move_and_add_random_tile(directions[network_output])
+            """
             possible_directions = pb.get_possible_move_directions()
             for choice in network_output:
                 if directions[choice] in possible_directions:
                     pb.move_and_add_random_tile(directions[choice])
                     break
+            """
 
     for i in range(50):
         pb = PowerBoard((4, 4))

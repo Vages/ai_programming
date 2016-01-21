@@ -4,6 +4,7 @@ import basics.mnist_basics as mb
 import MnistNetwork
 import datetime
 import sys
+import basics.mnistdemo as md
 
 dt = datetime.datetime
 
@@ -30,6 +31,7 @@ if __name__ == '__main__':
     a = time.time()
 
     error_rates = mnist_neural_net.do_training(no_of_epochs)
+    md.major_demo(mnist_neural_net, 1691, "/Users/eirikvageskar/PycharmProjects/ai_programming/module_5/basics/")
     print(mnist_neural_net.blind_test(mb.load_cases('demo100', nested=False)[0]))
     print("Error rates:", error_rates)
     percentage_wrong_on_test_set = mnist_neural_net.get_percentage_of_tests_wrong()
@@ -38,7 +40,7 @@ if __name__ == '__main__':
         mnist_neural_net.get_percentage_of_tests_wrong(mnist_neural_net.training_inputs,
                                                        mnist_neural_net.training_outputs)
 
-    mb.minor_demo(mnist_neural_net)
+
     print("Error rate on training_set:", percentage_wrong_on_training_set)
 
 
